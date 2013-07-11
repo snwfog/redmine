@@ -7,16 +7,16 @@ Redmine::Plugin.register :redmine_treeky do
 
 end
 
-require 'treeky/patches/application_helper_patch'
-require 'treeky/patches/projects_controller_patch'
-require 'treeky/patches/projects_helper_patch'
+require 'redmine_treeky/patches/application_helper_patch'
+require 'redmine_treeky/patches/projects_controller_patch'
+require 'redmine_treeky/patches/projects_helper_patch'
 
-#class TreekyViewListener < Redmine::Hook::ViewListener
-#  def view_layouts_base_html_head(context)
-#    javascript_include_tag 'treeky', plugin: :treeky
-#    stylesheet_link_tag 'treeky', plugin: :treeky
-#  end
-#end
+class TreekyViewListener < Redmine::Hook::ViewListener
+  def view_layouts_base_html_head(context)
+    javascript_include_tag('redmine_treeky', plugin: :redmine_treeky)
+    stylesheet_link_tag( 'redmine_treeky', plugin: :redmine_treeky)
+  end
+end
 
 
 
