@@ -10,6 +10,7 @@ end
 require 'redmine_treeky/patches/application_helper_patch'
 require 'redmine_treeky/patches/projects_controller_patch'
 require 'redmine_treeky/patches/projects_helper_patch'
+require 'redmine_treeky/patches/projects_helper'
 
 class TreekyViewListener < Redmine::Hook::ViewListener
   def view_layouts_base_html_head(context)
