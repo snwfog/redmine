@@ -39,16 +39,17 @@ class Member < ActiveRecord::Base
   end
 
   alias :base_role_ids= :role_ids=
+
   def role_ids=(arg)
     ids = (arg || []).collect(&:to_i) - [0]
     # Keep inherited roles
-    ids += member_roles.select {|mr| !mr.inherited_from.nil?}.collect(&:role_id)
+    ids += member_roles.select { |mr| !mr.inherited_from.nil? }.collect(&:role_id)
 
     new_role_ids = ids - role_ids
     # Add new roles
-    new_role_ids.each {|id| member_roles << MemberRole.new(:role_id => id) }
+    new_role_ids.each { |id| member_roles << MemberRole.new(:role_id => id) }
     # Remove roles (Rails' #role_ids= will not trigger MemberRole#on_destroy)
-    member_roles_to_destroy = member_roles.select {|mr| !ids.include?(mr.role_id)}
+    member_roles_to_destroy = member_roles.select { |mr| !ids.include?(mr.role_id) }
     if member_roles_to_destroy.any?
       member_roles_to_destroy.each(&:destroy)
     end
@@ -70,7 +71,7 @@ class Member < ActiveRecord::Base
   end
 
   def deletable?
-    member_roles.detect {|mr| mr.inherited_from}.nil?
+    member_roles.detect { |mr| mr.inherited_from }.nil?
   end
 
   def include?(user)
