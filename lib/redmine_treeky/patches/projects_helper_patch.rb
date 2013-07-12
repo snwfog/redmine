@@ -1,5 +1,6 @@
 require_dependency 'projects_helper'
-module ProjectsTreeView
+
+module RedmineTreekyView
   module Patches
     module ProjectsHelper
       def self.included(base) # :nodoc:
@@ -96,4 +97,4 @@ module ProjectsTreeView
   end # Close the module ProjectsTreeView::Patches
 end # Close the module ProjectsTreeView
 
-ProjectsHelper.send(:include, ProjectsTreeView::Patches::ProjectsHelper)
+ProjectsHelper.send(:include, RedmineTreekyView::Patches::ProjectsHelper)
