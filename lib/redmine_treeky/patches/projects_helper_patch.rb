@@ -1,13 +1,14 @@
 require_dependency 'projects_helper'
 
-module RedmineTreekyView
+module RedmineTreeky
   module Patches
-    module ProjectsHelper
+    module ProjectsHelperPatch
       def self.included(base) # :nodoc:
         base.send(:include, InstanceMethods)
       end
 
       module InstanceMethods
+        include FavoriteProjectsHelper
 
         ###
         # Compatibility helpers
@@ -57,7 +58,7 @@ module RedmineTreekyView
                       } +
                       ' '.html_safe + due_date_distance_in_words(version.effective_date) if version.effective_date
                     } +
-#                    content_tag(:br) +
+                    # content_tag(:br) +
                     progress_bar([version.closed_pourcent, version.completed_pourcent], :width => '30em', :legend => ('%0.0f%' % version.completed_pourcent))
                   )
                 end
@@ -92,9 +93,13 @@ module RedmineTreekyView
         end
 
 
-      end # Close the module ProjectsTreeView::Patches::ProjectsHelper::InstanceMethods
-    end # Close the module ProjectsTreeView::Patches::ProjectsHelper
-  end # Close the module ProjectsTreeView::Patches
-end # Close the module ProjectsTreeView
+      end
+    end
+  end
+end
 
-ProjectsHelper.send(:include, RedmineTreekyView::Patches::ProjectsHelper)
+ActionDispatch::Reloader.to_prepare do
+  unless ProjectsHelper.included_modules.include?(RedmineTreeky::Patches::ProjectsHelperPatch)
+    ProjectsHelper.send(:include, RedmineTreeky::Patches::ProjectsHelperPatch)
+  end
+end
