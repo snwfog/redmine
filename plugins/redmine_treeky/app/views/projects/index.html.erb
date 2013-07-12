@@ -13,7 +13,6 @@
 <table class="list">
   <thead>
   <tr>
-    <th><%= l(:favorite)%></th>
     <th><%= l(:label_project) %></th>
     <th><%= l(:field_description) %></th>
     <th><%= l(:field_created_on) %></th>
@@ -28,6 +27,7 @@
       <% openonclick = "" %>
       <% showchildren = false %>
       <% project_id_lsd = "%04d" % project.id %>
+
       <% project.children.each do |child| %>
           <% if @projects.include?(child) %>
               <% showchildren = true %>
@@ -58,6 +58,7 @@
               <% project_parent_id_lsd = "%04d" % project.parent.id %>
               <% openonclick = "showHide('"+project_parent_id_lsd+"','"+project_parent_id_lsd+"span')".html_safe %>
               <%= content_tag :tr, :id => project_parent_id_lsd + "span", :class => prvclasses do -%>
+
                   <td class="name">
                     <%= content_tag(:span, :style => "padding-left: #{(2*(ancestors.length-1)).to_s}em;") %>
                     <%= content_tag(:span, "&nbsp; ".html_safe, :onclick => openonclick, :class => "expander") %>
@@ -76,6 +77,7 @@
       <% end %>
       <%= content_tag :tr, :class => classes, :id => rowid do -%>
           <td class="name">
+            <%= favorite_tag(project.id) %>
             <%= content_tag :span, '', :style => "padding-left: #{(2*(ancestors.length-1)).to_s}em;" %>
             <%= spanicon %>
             <%= project.active? ? link_to(h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => "project") :
