@@ -5,8 +5,8 @@ module FavoriteProjectsHelper
     url = {:controller => 'favorite_projects',
            :action => (favorite ? 'unfavorite' : 'favorite'),
            :project_id => object.id}
-    link = link_to(image_tag(favorite ? 'fav.png' : 'fav_off.png', :style => 'vertical-align: middle;'),
-                    url, :remote => true)
+    link = link_to(image_tag(favorite ? 'fav.png' : 'fav_off.png',
+             :style => 'vertical-align: middle;'), url, :remote => true)
 
     content_tag("span", link, :id => "favorite_project_#{object.id}").html_safe
   end
