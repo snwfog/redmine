@@ -53,4 +53,7 @@ tr.hide {
 #content table.list tr td:first-child
 {
   width: 10px;
+  text-align: center;
 }
+
+

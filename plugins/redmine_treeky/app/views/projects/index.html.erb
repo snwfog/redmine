@@ -3,17 +3,17 @@
 <% end %>
 
 <div class="contextual">
-  <%= link_to(l(:label_project_new), {:controllers => 'projects', :action => 'new'}, :class => 'icon icon-add') + ' |' if User.current.allowed_to?(:add_project, nil, :global => true) %>
-  <%= link_to(l(:label_issue_view_all), {:controllers => 'issues'}) + ' |' if User.current.allowed_to?(:view_issues, nil, :global => true) %>
+  <%= link_to(l(:label_project_new), {:controller => 'projects', :action => 'new'}, :class => 'icon icon-add') + ' |' if User.current.allowed_to?(:add_project, nil, :global => true) %>
+  <%= link_to(l(:label_issue_view_all), {:controller => 'issues'}) + ' |' if User.current.allowed_to?(:view_issues, nil, :global => true) %>
   <%= link_to(l(:label_overall_spent_time), time_entries_path) + ' |' if User.current.allowed_to?(:view_time_entries, nil, :global => true) %>
-  <%= link_to l(:label_overall_activity), {:controllers => 'activities', :action => 'index', :id => nil} %>
+  <%= link_to l(:label_overall_activity), {:controller => 'activities', :action => 'index', :id => nil} %>
 </div>
 
 <h2><%= l(:label_project_plural) %></h2>
 <table class="list">
   <thead>
   <tr>
-    <th><%= l(:favorite) %></th>
+    <th></th>
     <th><%= l(:label_project) %></th>
     <th><%= l(:field_description) %></th>
     <th><%= l(:field_created_on) %></th>
@@ -60,6 +60,7 @@
               <% project_parent_id_lsd = "%04d" % project.parent.id %>
               <% openonclick = "showHide('"+project_parent_id_lsd+"','"+project_parent_id_lsd+"span')".html_safe %>
               <%= content_tag :tr, :id => project_parent_id_lsd + "span", :class => prvclasses do -%>
+                  <td><%= favorite_tag(project, User.current) %></td>
                   <td class="name">
                     <%= content_tag(:span, :style => "padding-left: #{(2*(ancestors.length-1)).to_s}em;") %>
                     <%= content_tag(:span, "&nbsp; ".html_safe, :onclick => openonclick, :class => "expander") %>
@@ -82,8 +83,7 @@
           <td class="name">
             <%= content_tag :span, '', :style => "padding-left: #{(2*(ancestors.length-1)).to_s}em;" %>
             <%= spanicon %>
-            <%= project.active? ? link_to(h(project.name), {:controllers => 'projects', :action => 'show', :id => project}, :class => "project") :
-                        h(project.name) %>
+            <%= project.active? ? link_to(h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => "project") : h(project.name) %>
             <%= content_tag :span, '&nbsp;'.html_safe, :onclick => openonclick, :class => "empty" %>
           </td>
           <%= content_tag :td, :onclick => openonclick do -%><%= textilizable project.short_description.gsub(/\!.+\!/, ""), :project => project %>

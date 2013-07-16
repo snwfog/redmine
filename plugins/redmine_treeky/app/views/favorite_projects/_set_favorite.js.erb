@@ -1,0 +1,10 @@
+<% selector = "#favorite_project_#{@project.id}" %>
+$("<%= selector %>").each(function()
+{
+  $(this).replaceWith("<%= j favorite_tag(@project, User.current) %>");
+  console.log("Replaced");
+});
+
+<% @project = nil %>
+$('#quick-search > select').html("<%= j render_project_jump_box %>");
+

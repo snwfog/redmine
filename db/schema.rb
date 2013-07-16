@@ -64,7 +64,7 @@ ActiveRecord::Schema.define(:version => 20130217094251) do
   end
 
   add_index "boards", ["last_message_id"], :name => "index_boards_on_last_message_id"
-  add_index "boards", ["project_id"], :name => "boards_project_id"
+  add_index "boards", ["project_id"], :name => "altered_boards_project_id"
 
   create_table "changes", :force => true do |t|
     t.integer "changeset_id",                               :null => false
@@ -98,7 +98,7 @@ ActiveRecord::Schema.define(:version => 20130217094251) do
   end
 
   add_index "changesets", ["committed_on"], :name => "index_changesets_on_committed_on"
-  add_index "changesets", ["repository_id", "revision"], :name => "changesets_repos_rev", :unique => true
+  add_index "changesets", ["repository_id", "revision"], :name => "altered_changesets_repos_rev", :unique => true
   add_index "changesets", ["repository_id", "scmid"], :name => "changesets_repos_scmid"
   add_index "changesets", ["repository_id"], :name => "index_changesets_on_repository_id"
   add_index "changesets", ["user_id"], :name => "index_changesets_on_user_id"
@@ -139,6 +139,7 @@ ActiveRecord::Schema.define(:version => 20130217094251) do
     t.boolean "editable",                      :default => true
     t.boolean "visible",                       :default => true,  :null => false
     t.boolean "multiple",                      :default => false
+    t.boolean "textilizable",                  :default => false, :null => false
   end
 
   add_index "custom_fields", ["id", "type"], :name => "index_custom_fields_on_id_and_type"
@@ -178,6 +179,32 @@ ActiveRecord::Schema.define(:version => 20130217094251) do
   add_index "documents", ["category_id"], :name => "index_documents_on_category_id"
   add_index "documents", ["created_on"], :name => "index_documents_on_created_on"
   add_index "documents", ["project_id"], :name => "documents_project_id"
+
+  create_table "doodle_answers", :force => true do |t|
+    t.text     "answers"
+    t.integer  "doodle_id"
+    t.integer  "author_id"
+    t.datetime "created_on"
+    t.datetime "updated_on"
+  end
+
+  create_table "doodle_answers_edits", :force => true do |t|
+    t.integer  "doodle_answers_id"
+    t.integer  "author_id"
+    t.datetime "edited_on"
+  end
+
+  create_table "doodles", :force => true do |t|
+    t.string   "title"
+    t.integer  "project_id"
+    t.integer  "author_id"
+    t.text     "description"
+    t.text     "options"
+    t.datetime "expiry_date"
+    t.datetime "created_on"
+    t.datetime "updated_on"
+    t.boolean  "locked",      :default => false
+  end
 
   create_table "enabled_modules", :force => true do |t|
     t.integer "project_id"
@@ -223,6 +250,13 @@ ActiveRecord::Schema.define(:version => 20130217094251) do
   add_index "issue_categories", ["assigned_to_id"], :name => "index_issue_categories_on_assigned_to_id"
   add_index "issue_categories", ["project_id"], :name => "issue_categories_project_id"
 
+  create_table "issue_checklists", :force => true do |t|
+    t.boolean "is_done",  :default => false
+    t.string  "subject"
+    t.integer "position", :default => 1
+    t.integer "issue_id",                    :null => false
+  end
+
   create_table "issue_relations", :force => true do |t|
     t.integer "issue_from_id",                 :null => false
     t.integer "issue_to_id",                   :null => false
@@ -245,6 +279,14 @@ ActiveRecord::Schema.define(:version => 20130217094251) do
   add_index "issue_statuses", ["is_closed"], :name => "index_issue_statuses_on_is_closed"
   add_index "issue_statuses", ["is_default"], :name => "index_issue_statuses_on_is_default"
   add_index "issue_statuses", ["position"], :name => "index_issue_statuses_on_position"
+
+  create_table "issue_versions", :force => true do |t|
+    t.integer "issue_id"
+    t.integer "journal_id"
+    t.binary  "data"
+    t.string  "compression", :limit => 6, :default => ""
+    t.integer "version"
+  end
 
   create_table "issues", :force => true do |t|
     t.integer  "tracker_id",                          :null => false
@@ -521,6 +563,11 @@ ActiveRecord::Schema.define(:version => 20130217094251) do
   add_index "users", ["id", "type"], :name => "index_users_on_id_and_type"
   add_index "users", ["type"], :name => "index_users_on_type"
 
+  create_table "users_should_answer_doodles", :id => false, :force => true do |t|
+    t.integer "user_id",   :null => false
+    t.integer "doodle_id", :null => false
+  end
+
   create_table "versions", :force => true do |t|
     t.integer  "project_id",      :default => 0,      :null => false
     t.string   "name",            :default => "",     :null => false
@@ -533,7 +580,7 @@ ActiveRecord::Schema.define(:version => 20130217094251) do
     t.string   "sharing",         :default => "none", :null => false
   end
 
-  add_index "versions", ["project_id"], :name => "versions_project_id"
+  add_index "versions", ["project_id"], :name => "altered_versions_project_id"
   add_index "versions", ["sharing"], :name => "index_versions_on_sharing"
 
   create_table "watchers", :force => true do |t|
@@ -547,26 +594,26 @@ ActiveRecord::Schema.define(:version => 20130217094251) do
   add_index "watchers", ["watchable_id", "watchable_type"], :name => "index_watchers_on_watchable_id_and_watchable_type"
 
   create_table "wiki_content_versions", :force => true do |t|
-    t.integer  "wiki_content_id",                                       :null => false
-    t.integer  "page_id",                                               :null => false
+    t.integer  "wiki_content_id",                              :null => false
+    t.integer  "page_id",                                      :null => false
     t.integer  "author_id"
-    t.binary   "data",            :limit => 2147483647
-    t.string   "compression",     :limit => 6,          :default => ""
-    t.string   "comments",                              :default => ""
-    t.datetime "updated_on",                                            :null => false
-    t.integer  "version",                                               :null => false
+    t.binary   "data"
+    t.string   "compression",     :limit => 6, :default => ""
+    t.string   "comments",                     :default => ""
+    t.datetime "updated_on",                                   :null => false
+    t.integer  "version",                                      :null => false
   end
 
   add_index "wiki_content_versions", ["updated_on"], :name => "index_wiki_content_versions_on_updated_on"
   add_index "wiki_content_versions", ["wiki_content_id"], :name => "wiki_content_versions_wcid"
 
   create_table "wiki_contents", :force => true do |t|
-    t.integer  "page_id",                                          :null => false
+    t.integer  "page_id",                    :null => false
     t.integer  "author_id"
-    t.text     "text",       :limit => 2147483647
-    t.string   "comments",                         :default => ""
-    t.datetime "updated_on",                                       :null => false
-    t.integer  "version",                                          :null => false
+    t.text     "text"
+    t.string   "comments",   :default => ""
+    t.datetime "updated_on",                 :null => false
+    t.integer  "version",                    :null => false
   end
 
   add_index "wiki_contents", ["author_id"], :name => "index_wiki_contents_on_author_id"
