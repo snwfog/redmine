@@ -36,7 +36,7 @@ module RedmineTreeky
             issues_closed_percent = (1 - open_issues.to_f/project.issues.count) * 100
             s << content_tag(:div) {
               "Issues: ".html_safe +
-              link_to("#{open_issues} open", :controller => 'issues', :action => 'index', :project_id => project, :set_filter => 1) +
+              link_to("#{open_issues} open", :controllers => 'issues', :action => 'index', :project_id => project, :set_filter => 1) +
               '&nbsp;'.html_safe + content_tag(:small, "#{project.issues.count} total")
             }
             s << progress_bar(issues_closed_percent, :width => '30em', :legend => '%0.0f%' % issues_closed_percent)
