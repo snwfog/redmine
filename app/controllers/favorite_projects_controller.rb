@@ -10,11 +10,8 @@ class FavoriteProjectsController < ApplicationController
     end
   end
 
-  def unfavorite
-    respond_to do |format|
-      format.js { render :ok }
-    end
-    #set_favorite(User.current, false)
+  def unfavorite_project
+    set_favorite(User.current, false)
   end
 
   # Returns the css class used to identify watch links for a given +object+
@@ -25,11 +22,13 @@ class FavoriteProjectsController < ApplicationController
   private
 
   def set_favorite(user, favorite)
-    if favorite
-      favorite_project = FavoriteProject.favorite?(@project, user)
-      favorite_project.delete if favorite_project
-    else
+    # Move this validation to the model
+    favorite_project = FavoriteProject.find_by_project_id_and_user_id(@project.id, user.id)
+
+    if favorite && favorite_project.nil?
       FavoriteProject.create(project_id: @project.id, user_id: user.id)
+    else
+      favorite_project.destroy if favorite_project
     end
 
     respond_to do |format|

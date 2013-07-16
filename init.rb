@@ -8,7 +8,6 @@ Redmine::Plugin.register :redmine_treeky do
 end
 
 require 'redmine_treeky/patches/projects_helper_patch'
-require 'redmine_treeky/patches/projects_controller_patch'
 
 class RedmineTreekyViewListener < Redmine::Hook::ViewListener
   # Adds javascript and stylesheet tags
