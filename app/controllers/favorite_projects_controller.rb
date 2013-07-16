@@ -2,7 +2,7 @@ class FavoriteProjectsController < ApplicationController
   unloadable
   before_filter :find_project_by_project_id, :except => :search
 
-   def favorite
+  def favorite
     if @project.respond_to?(:visible?) && !@project.visible?(User.current)
       render_403
     else
@@ -11,7 +11,10 @@ class FavoriteProjectsController < ApplicationController
   end
 
   def unfavorite
-     set_favorite(User.current, false)
+    respond_to do |format|
+      format.js { render :ok }
+    end
+    #set_favorite(User.current, false)
   end
 
   # Returns the css class used to identify watch links for a given +object+
@@ -23,10 +26,10 @@ class FavoriteProjectsController < ApplicationController
 
   def set_favorite(user, favorite)
     if favorite
-      favorite_project = FavoriteProject.find_by_project_id_and_user_id(@project.id, user.id)
+      favorite_project = FavoriteProject.favorite?(@project, user)
       favorite_project.delete if favorite_project
     else
-      FavoriteProject.create(:project_id => @project.id, :user_id => user.id)
+      FavoriteProject.create(project_id: @project.id, user_id: user.id)
     end
 
     respond_to do |format|

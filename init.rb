@@ -1,15 +1,14 @@
 require 'redmine'
 
-unless Redmine::Plugin.registered_plugins.keys.include?(:redmine_treeky)
-  Redmine::Plugin.register :redmine_treeky do
-    name  'plugin'
-    author 'Charles Yang'
-    description 'Series of custom features, merges and good stuffs.'
-    version '0.0.1'
-  end
+Redmine::Plugin.register :redmine_treeky do
+  name  'plugin'
+  author 'Charles Yang'
+  description 'Series of custom features, merges and good stuffs.'
+  version '0.0.1'
 end
 
 require 'redmine_treeky/patches/projects_helper_patch'
+require 'redmine_treeky/patches/projects_controller_patch'
 
 class RedmineTreekyViewListener < Redmine::Hook::ViewListener
   # Adds javascript and stylesheet tags

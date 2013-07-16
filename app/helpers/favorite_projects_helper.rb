@@ -2,7 +2,7 @@ module FavoriteProjectsHelper
   def favorite_tag(object, user, options={})
     return '' unless user && user.logged? && user.member_of?(object)
     favorite = FavoriteProject.favorite?(object.id, user.id)
-    url = {:controller => 'favorite_projects',
+    url = {:controllers => 'favorite_projects',
            :action => (favorite ? 'unfavorite' : 'favorite'),
            :project_id => object.id}
     link = link_to(image_tag(favorite ? 'fav.png' : 'fav_off.png',
