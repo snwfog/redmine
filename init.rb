@@ -7,7 +7,12 @@ Redmine::Plugin.register :redmine_treeky do
   version '0.0.1'
 end
 
-require 'redmine_treeky/patches/projects_helper_patch'
+ActionDispatch::Callbacks.to_prepare do
+  require 'redmine_treeky/patches/projects_helper_patch'
+  require 'redmine_treeky/patches/projects_patch'
+  require 'redmine_treeky/patches/users_patch'
+end
+
 
 class RedmineTreekyViewListener < Redmine::Hook::ViewListener
   # Adds javascript and stylesheet tags
