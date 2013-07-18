@@ -10,7 +10,7 @@ class FavoriteProjectsController < ApplicationController
     end
   end
 
-  def unfavorite_project
+  def unfavorite
     set_favorite(User.current, false)
   end
 

@@ -11,6 +11,58 @@
 //  }
 //});
 
+$(document).ready(function() {
+  $('#expand-all-projects').click(function(event) { toggle('closed'); event.preventDefault(); });
+  $('#collapse-all-projects').click(function(event) { toggle('closed'); toggle('open'); event.preventDefault(); });
+  $('#collapse-to-favorite-projects').click(function(event) { collapse_to_favorite(); event.preventDefault(); });
+});
+
+function toggle(state)
+{
+  $('tr.' + state + '.parent span.expander').each(function() {
+    if (this.hasOwnProperty('onclick'))
+    {
+      return this.onclick.call();
+    }
+
+  });
+}
+
+function collapse_to_favorite()
+{
+  $('tr').each(function()
+  {
+    var classProp = $(this).prop('class');
+    if (/\bfav\b/.exec(classProp))
+    {
+      $(this).prop('class', classProp.replace(/hide/, ''));
+    }
+    else
+    {
+      if (!/\bhide\b/.exec(classProp) && /([\d]{4})+/.exec(classProp))
+      {
+        $(this).prop('class', classProp + " hide");
+      }
+    }
+  });
+
+  redraw_table_strip();
+}
+
+function redraw_table_strip()
+{
+  var alt = 0;
+  $('#projects-list tr:not(tr.hide)').each(function()
+  {
+    var classProp = $(this).prop('class');
+    $(this).prop('class', classProp.replace(/(even|odd)/, ''));
+    classProp = $(this).prop('class') + ((((alt++) % 2) == 0) ? " even" : " odd");
+    console.log(classProp);
+    $(this).prop('class', classProp);
+  });
+}
+
+
 function showHide(EL, PM) {
   var els = document.getElementsByTagName('tr');
   var elsLen = els.length;

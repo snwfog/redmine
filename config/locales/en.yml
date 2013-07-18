@@ -4,8 +4,10 @@ en:
   field_versions: "Versions"
   field_go_to: Go to module
   subprojects: sub projects
-  expand_all: "Expand All"
-
+  expand_all: "Expand all"
+  collapse_all: "Collapse all"
+  collapse_to_favorite: "Pin favorites"
   #
 
   favorite: "Favorite"
+

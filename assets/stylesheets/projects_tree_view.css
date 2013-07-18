@@ -50,3 +50,9 @@ tr.hide {
   display: none;
 }
 
+table#projects-list td tr:first-child
+{
+  width: 10px;
+  text-align: center;
+}
+
