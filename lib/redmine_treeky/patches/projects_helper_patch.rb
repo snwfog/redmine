@@ -98,8 +98,6 @@ module RedmineTreeky
   end
 end
 
-#ActionDispatch::Reloader.to_prepare do
-  unless ProjectsHelper.included_modules.include?(RedmineTreeky::Patches::ProjectsHelperPatch)
-    ProjectsHelper.send(:include, RedmineTreeky::Patches::ProjectsHelperPatch)
-  end
-#end
+unless ProjectsHelper.included_modules.include?(RedmineTreeky::Patches::ProjectsHelperPatch)
+  ProjectsHelper.send(:include, RedmineTreeky::Patches::ProjectsHelperPatch)
+end
