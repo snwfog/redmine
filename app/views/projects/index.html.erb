@@ -66,17 +66,15 @@
               <% end %>
               <% project_parent_id_lsd = "%04d" % project.parent.id %>
               <% openonclick = "showHide('"+project_parent_id_lsd+"','"+project_parent_id_lsd+"span')".html_safe %>
-              <%= content_tag :tr, :id => project_parent_id_lsd + "span", :class => prvclasses do -%>
-                  <td><%= favorite_tag(project, User.current) %></td>
-                  <td class="name">
-                    <%= content_tag(:span, :style => "padding-left: #{(2*(ancestors.length-1)).to_s}em;") %>
-                    <%= content_tag(:span, "&nbsp; ".html_safe, :onclick => openonclick, :class => "expander") %>
-                    <%= h("<Private Project>") %>
-                    <%= content_tag(:span, "&nbsp; ".html_safe, :onclick => openonclick, :class => "empty") %>
-                  </td>
-                  <%= content_tag(:td, 'Project is private.', :onclick => openonclick) %>
-
-                  </span>
+              <%= content_tag :tr, :id => project_parent_id_lsd + "span", :class => prvclasses do %>
+                <td><%= favorite_tag(project, User.current) %></td>
+                <td class="name" >
+                  <%= content_tag(:span, '', :style => "padding-left: #{(2*((ancestors.length) > 0 ? ancestors.length-1 : 0)).to_s}em;") %>
+                  <%= content_tag(:span, "&nbsp; ".html_safe, :onclick => openonclick, :class => "expander") %>
+                  <%= content_tag(:span, "&nbsp; ".html_safe, :onclick => openonclick, :class => "empty") %>
+                </td>
+                <%= content_tag(:td, 'Project is private.', :onclick => openonclick) %>
+                </span>
               <% end -%>
               <% ancestors << project.parent_id %>
           <% end %>
@@ -88,7 +86,7 @@
       <%= content_tag :tr, :class => classes, :id => rowid do -%>
           <td><%= favorite_tag(project, User.current) %></td>
           <td class="name">
-            <%= content_tag :span, '', :style => "padding-left: #{(2*(ancestors.length-1)).to_s}em;" %>
+            <%= content_tag :span, '', :style => "padding-left: #{(2*((ancestors.length) > 0 ? ancestors.length-1 : 0)).to_s}em;" %>
             <%= spanicon %>
             <%= project.active? ? link_to(h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => "project") : h(project.name) %>
             <%= content_tag :span, '&nbsp;'.html_safe, :onclick => openonclick, :class => "empty" %>

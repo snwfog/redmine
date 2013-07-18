@@ -16,6 +16,14 @@ tr.child  td.name {
   width: 300px;
 }
 
+tr span.expander {
+  background-size: 24px;
+  background-repeat: no-repeat;
+  padding-top: 4px;
+  padding-left: 16px;
+  margin-right: 8px;
+}
+
 tr.child span.expander {
   background-image: url(../images/bullet_toggle_plus.png);
   opacity: 0.2;
@@ -56,3 +64,7 @@ table#projects-list td tr:first-child
   text-align: center;
 }
 
+table#projects-list td
+{
+  padding-right: 0px;
+}
