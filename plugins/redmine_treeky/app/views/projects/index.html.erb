@@ -10,7 +10,14 @@
 </div>
 
 <h2><%= l(:label_project_plural) %></h2>
-<table class="list">
+
+<p>
+  <a href="#" id="collapse-to-favorite-projects"><%= l(:collapse_to_favorite) %></a> |
+  <a href="#" id="expand-all-projects"><%= l(:expand_all) %></a> |
+  <a href="#" id="collapse-all-projects"><%= l(:collapse_all) %></a>
+</p>
+
+<table class="list" id="projects-list">
   <thead>
   <tr>
     <th></th>
@@ -23,7 +30,7 @@
   <% ancestors = [] %>
   <% for project in @projects %>
       <% rowid = "" %>
-      <% classes = "" %>
+      <% classes = " #{favorite?(project) ? 'fav' : 'unfav'}" %>
       <% spanicon = "" %>
       <% openonclick = "" %>
       <% showchildren = false %>
@@ -93,15 +100,6 @@
   <% end %>
   </tbody>
 </table>
-
-<a href="#" id="expand_all"><%= l(:expand_all) %></a>
-
-
-<% if User.current.logged? %>
-    <p style="text-align:right;">
-      <span class="my-project"><%= l(:label_my_projects) %></span>
-    </p>
-<% end %>
 
 <% other_formats_links do |f| %>
     <%= f.link_to 'Atom', :url => {:key => User.current.rss_key} %>
