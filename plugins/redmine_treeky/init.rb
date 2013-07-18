@@ -1,18 +1,28 @@
 require 'redmine'
 
+if Rails::VERSION::MAJOR < 3
+  require 'dispatcher'
+  object_to_prepare = Dispatcher
+else
+  object_to_prepare = Rails.configuration
+  # if redmine plugins were railties:
+  # object_to_prepare = config
+end
+
+object_to_prepare.to_prepare do
+  require_dependency 'redmine_treeky/patches/projects_helper_patch'
+  require_dependency 'redmine_treeky/patches/projects_patch'
+  require_dependency 'redmine_treeky/patches/users_patch'
+end
+
+
+
 Redmine::Plugin.register :redmine_treeky do
   name  'plugin'
   author 'Charles Yang'
   description 'Series of custom features, merges and good stuffs.'
   version '0.0.1'
 end
-
-ActionDispatch::Callbacks.to_prepare do
-  require 'redmine_treeky/patches/projects_helper_patch'
-  require 'redmine_treeky/patches/projects_patch'
-  require 'redmine_treeky/patches/users_patch'
-end
-
 
 class RedmineTreekyViewListener < Redmine::Hook::ViewListener
   # Adds javascript and stylesheet tags
