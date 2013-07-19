@@ -13,7 +13,6 @@ module RedmineTreeky
         ###
         # Compatibility helpers
         ###
-
         # Redmine Core trunk@r2734 (0.9-devel)
         # Returns true if the method is defined, else it returns false
         def users_by_role_implemented

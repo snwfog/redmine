@@ -3,7 +3,7 @@ require_dependency 'user'
 module RedmineTreeky
   module Patches
     module UserPatch
-      def self.include(base)
+      def self.included(base)
         base.extend(ClassMethods)
         base.send(:include, InstanceMethods)
         #base.class_eval do

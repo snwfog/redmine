@@ -3,7 +3,7 @@ require_dependency 'project'
 module RedmineTreeky
   module Patches
     module ProjectPatch
-      def self.include(base)
+      def self.included(base) # :nodoc:
         base.extend(ClassMethods)
         base.send(:include, InstanceMethods)
 
