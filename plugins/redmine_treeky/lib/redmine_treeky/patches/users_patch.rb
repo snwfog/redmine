@@ -6,21 +6,21 @@ module RedmineTreeky
       def self.included(base)
         base.extend(ClassMethods)
         base.send(:include, InstanceMethods)
-        #base.class_eval do
-        #  unloadable
-        #
-        #  #has_many_and_belongs_to_many :favorite_projects, :class_name => 'Project',
-        #  #    :join_table => 'favorite_projects', :foreign_key => 'project_id'
-        #
-        #end
+
+        base.class_eval do
+          unloadable
+
+          has_and_belongs_to_many :favorite_projects, :class_name => 'Project',
+              :join_table => 'favorite_projects', :foreign_key => 'user_id',
+              :association_foreign_key => 'project_id'
+
+        end
       end
 
       module ClassMethods
-
       end
 
       module InstanceMethods
-
       end
 
     end
