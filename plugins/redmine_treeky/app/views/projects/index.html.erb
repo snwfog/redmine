@@ -21,7 +21,9 @@
   <tr>
     <th></th>
     <th><%= l(:label_project) %></th>
-    <th><%= l(:field_description) %></th>
+    <% CustomField.custom_field(:ProjectCustomField).each do |f| %>
+      <th><%= f.name %></th>
+    <% end %>
     <th><%= l(:field_created_on) %></th>
   </tr>
   </thead>
@@ -90,8 +92,9 @@
             <%= project.active? ? link_to(h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => "project") : h(project.name) %>
             <%= content_tag :span, '&nbsp;'.html_safe, :onclick => openonclick, :class => "empty" %>
           </td>
-          <%= content_tag :td, :onclick => openonclick do -%><%= textilizable project.short_description.gsub(/\!.+\!/, ""), :project => project %>
-          <% end -%>
+          <% project.custom_field_values.each do |field| %>
+            <td align="center"><%= field.value %></td>
+          <% end %>
           <td align="center"><%= format_date(project.created_on) %></td>
       <% end -%>
   <% end %>

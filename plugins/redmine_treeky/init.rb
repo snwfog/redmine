@@ -11,8 +11,9 @@ end
 
 object_to_prepare.to_prepare do
   require_dependency 'redmine_treeky/patches/projects_helper_patch'
-  require_dependency 'redmine_treeky/patches/projects_patch'
-  require_dependency 'redmine_treeky/patches/users_patch'
+  require_dependency 'redmine_treeky/patches/custom_field_patch'
+  require_dependency 'redmine_treeky/patches/project_patch'
+  require_dependency 'redmine_treeky/patches/user_patch'
 end
 
 
