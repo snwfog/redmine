@@ -6,7 +6,7 @@ class CreateFavoriteProjects < ActiveRecord::Migration
     end
     add_index :favorite_projects, [:project_id, :user_id]
   end
-  
+
 
   def self.down
     drop_table :favorite_projects
