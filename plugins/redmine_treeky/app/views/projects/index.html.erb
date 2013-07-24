@@ -92,14 +92,39 @@
             <%= project.active? ? link_to(h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => "project") : h(project.name) %>
             <%= content_tag :span, '&nbsp;'.html_safe, :onclick => openonclick, :class => "empty" %>
           </td>
-          <% project.custom_field_values.each do |field| %>
-            <td align="center"><%= field.value %></td>
+          <% project.visible_custom_field_values.each do |field| %>
+            <% if !field.value.blank? %>
+              <td align="center"><%=h show_value(field) %></td>
+            <% else %>
+              <td></td>
+            <% end %>
           <% end %>
           <td align="center"><%= format_date(project.created_on) %></td>
       <% end -%>
   <% end %>
   </tbody>
 </table>
+
+<%= form_tag() do %>
+  <fieldset class="collapsible collapsed">
+    <legend onclick="toggleFieldset(this);">Filters</legend>
+    <div style="display: none">
+      <fieldset>
+        <legend>Project custom fields</legend>
+        <table>
+          <% CustomField.custom_field(:ProjectCustomField).each do |custom_field| %>
+            <tr>
+              <td>
+                <%= check_box_tag :project_custom_field, custom_field.id %>
+                <%= label_tag :project_custom_field, custom_field.name %>
+              </td>
+            </tr>
+        <% end %>
+        </table>
+      </fieldset>
+    </div>
+  </fieldset>
+<% end %>
 
 <% other_formats_links do |f| %>
     <%= f.link_to 'Atom', :url => {:key => User.current.rss_key} %>
