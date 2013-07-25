@@ -14,8 +14,9 @@ module RedmineTreeky
               :join_table => 'favorite_projects', :foreign_key => 'user_id',
               :association_foreign_key => 'project_id'
 
-          has_many :favorite_project_custom_fields
-
+          has_and_belongs_to_many :favorite_project_custom_fields,
+              class_name: "CustomField", join_table: "favorite_project_custom_fields",
+              foreign_key: "user_id", association_foreign_key: "custom_field_id"
         end
       end
 

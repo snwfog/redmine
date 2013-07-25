@@ -13,6 +13,10 @@ module RedmineTreeky
         def custom_field(field)
           CustomField.where("type = ?", field);
         end
+
+        def project
+          custom_field :ProjectCustomField
+        end
       end
     end
   end
