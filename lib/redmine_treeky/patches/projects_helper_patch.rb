@@ -11,7 +11,7 @@ module RedmineTreeky
         include FavoriteProjectsHelper
 
         def custom_fields
-          CustomField.custom_field :ProjectCustomField
+          CustomField.project
         end
 
         ###

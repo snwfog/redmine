@@ -22,7 +22,7 @@
     <th></th>
     <th><%= l(:label_project) %></th>
     <% custom_fields.each do |f| %>
-      <%= content_tag(:th, f.name, class: "custom-field-#{f.id}") %>
+      <%= content_tag(:th, f.name, class: "custom-field-#{f.id}", style: User.current.favorite_project_custom_field_ids.include?(f.id) ? '' : 'display: none;') %>
     <% end %>
     <th><%= l(:field_created_on) %></th>
   </tr>
@@ -94,7 +94,7 @@
           </td>
           <% project.visible_custom_field_values.each do |field| %>
             <% if !field.value.blank? %>
-              <%= content_tag(:td, h(show_value(field)), align: :center, class: "custom-field-#{field.custom_field.id}") %>
+              <%= content_tag(:td, h(show_value(field)), align: :center, class: "custom-field-#{field.custom_field.id}", style: User.current.favorite_project_custom_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
             <% else %>
                <%= content_tag(:td, "", align: :center, class: "custom-field-#{field.custom_field.id}") %>
             <% end %>
@@ -115,9 +115,11 @@
           <td>
             <fieldset>
               <legend>Project custom fields</legend>
-              <%= select_tag :project_custom_field,
-                  options_from_collection_for_select(custom_fields, :id, :name),
-                  { multiple: true, size: custom_fields.length } %>
+              <% custom_fields.each do |field| %>
+                <%= check_box :project_custom_field, field.id, { data: { field: field.id }, checked: User.current.favorite_project_custom_field_ids.include?(field.id) } %>
+                <%= label_tag :project_custom_field, field.name %>
+              <br />
+              <% end %>
             </fieldset>
           </td>
         </td>

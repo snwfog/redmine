@@ -1,9 +1,9 @@
 $(function() {
   $('#project-custom-label-filter').change(function() {
-    $(this).find('option').each(function() {
-      classId = $(this).attr('value');
+    $(this).find('input[type=checkbox]').each(function() {
+      classId = $(this).data('field');
       $td = $("#projects-list .custom-field-" + classId);
-      if (this.selected)
+      if (this.checked)
         $td.css("display", "");
       else
         $td.css("display", "none");
@@ -11,6 +11,4 @@ $(function() {
 
     $(this).submit();
   });
-
-  $('#project-custom-label-filter').trigger('change');
 });
