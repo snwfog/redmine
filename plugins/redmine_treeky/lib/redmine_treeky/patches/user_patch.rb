@@ -14,6 +14,8 @@ module RedmineTreeky
               :join_table => 'favorite_projects', :foreign_key => 'user_id',
               :association_foreign_key => 'project_id'
 
+          has_many :favorite_project_custom_fields
+
         end
       end
 
@@ -21,6 +23,7 @@ module RedmineTreeky
       end
 
       module InstanceMethods
+
       end
 
     end

@@ -21,8 +21,8 @@
   <tr>
     <th></th>
     <th><%= l(:label_project) %></th>
-    <% CustomField.custom_field(:ProjectCustomField).each do |f| %>
-      <th><%= f.name %></th>
+    <% custom_fields.each do |f| %>
+      <%= content_tag(:th, f.name, class: "custom-field-#{f.id}") %>
     <% end %>
     <th><%= l(:field_created_on) %></th>
   </tr>
@@ -94,9 +94,9 @@
           </td>
           <% project.visible_custom_field_values.each do |field| %>
             <% if !field.value.blank? %>
-              <td align="center"><%=h show_value(field) %></td>
+              <%= content_tag(:td, h(show_value(field)), align: :center, class: "custom-field-#{field.custom_field.id}") %>
             <% else %>
-              <td></td>
+               <%= content_tag(:td, "", align: :center, class: "custom-field-#{field.custom_field.id}") %>
             <% end %>
           <% end %>
           <td align="center"><%= format_date(project.created_on) %></td>
@@ -105,23 +105,23 @@
   </tbody>
 </table>
 
-<%= form_tag() do %>
+<%= form_tag('/custom_label_filter', id: 'project-custom-label-filter',
+    remote: true) do %>
   <fieldset class="collapsible collapsed">
     <legend onclick="toggleFieldset(this);">Filters</legend>
     <div style="display: none">
-      <fieldset>
-        <legend>Project custom fields</legend>
-        <table>
-          <% CustomField.custom_field(:ProjectCustomField).each do |custom_field| %>
-            <tr>
-              <td>
-                <%= check_box_tag :project_custom_field, custom_field.id %>
-                <%= label_tag :project_custom_field, custom_field.name %>
-              </td>
-            </tr>
-        <% end %>
-        </table>
-      </fieldset>
+      <table>
+        <td>
+          <td>
+            <fieldset>
+              <legend>Project custom fields</legend>
+              <%= select_tag :project_custom_field,
+                  options_from_collection_for_select(custom_fields, :id, :name),
+                  { multiple: true, size: custom_fields.length } %>
+            </fieldset>
+          </td>
+        </td>
+      </table>
     </div>
   </fieldset>
 <% end %>
