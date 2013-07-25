@@ -1,13 +1,15 @@
 class CreateFavoriteProjectCustomFields < ActiveRecord::Migration
-  def up
-    create_table :favorite_project_custom_fields do |t|
-      t.integer :user_id
-      t.integer :favorite_fields
+  def self.up
+    create_table :favorite_project_custom_fields, :id => false do |t|
+      t.column :user_id, :integer, :null => false
+      t.column :custom_field_id, :integer, :null => false
     end
+
+    add_index :favorite_project_custom_fields, [:user_id, :custom_field_id],
+        name: :user_project_custom_fields
   end
 
-  def down
+  def self.down
     drop_table :favorite_project_custom_fields
   end
-
 end
