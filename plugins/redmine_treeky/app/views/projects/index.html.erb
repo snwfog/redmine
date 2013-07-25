@@ -96,7 +96,7 @@
             <% if !field.value.blank? %>
               <%= content_tag(:td, h(show_value(field)), align: :center, class: "custom-field-#{field.custom_field.id}", style: User.current.favorite_project_custom_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
             <% else %>
-               <%= content_tag(:td, "", align: :center, class: "custom-field-#{field.custom_field.id}") %>
+               <%= content_tag(:td, "", align: :center, class: "custom-field-#{field.custom_field.id}", style: User.current.favorite_project_custom_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
             <% end %>
           <% end %>
           <td align="center"><%= format_date(project.created_on) %></td>
