@@ -10,6 +10,10 @@ module RedmineTreeky
       module InstanceMethods
         include FavoriteProjectsHelper
 
+        def custom_fields
+          CustomField.custom_field :ProjectCustomField
+        end
+
         ###
         # Compatibility helpers
         ###
