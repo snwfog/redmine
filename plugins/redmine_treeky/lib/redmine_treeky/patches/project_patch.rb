@@ -14,9 +14,13 @@ module RedmineTreeky
               :join_table => 'favorite_projects', :foreign_key => 'project_id',
               :association_foreign_key => 'user_id'
 
+          # scope :redmine_visible, scopes[:visible]
+          # scope :visible, lambda { includes(:custom_values).redmine_visible }
         end
       end
 
+      # module ClassMethods
+      # end
       # module InstanceMethods
       # end
 
