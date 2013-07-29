@@ -4,23 +4,20 @@ class ProjectCustomLabelFilterController < ApplicationController
 
   def update
     field_ids = params[:project_custom_field].select{|k, v| v == "1"}.keys
-    favorite_field_ids = @user.favorite_project_custom_field_ids
 
-    mark_as_favorite = field_ids - favorite_field_ids
-    mark_to_delete = favorite_field_ids - field_ids
+    # Mass delete all the records
+    FavoriteProjectCustomField.delete_all(["user_id = ?", @user.id])
 
     # Create the record individually
-    mark_as_favorite.each do |field_id|
+    field_ids.each do |field_id|
       FavoriteProjectCustomField.create(user_id: @user.id, custom_field_id: field_id)
     end
 
-    # Mass delete the records
-    FavoriteProjectCustomField.delete_all(["custom_field_id IN (?) AND user_id = ?", mark_to_delete, @user.id])
-
-    # respond_to do |format|
-    #   format.html { redirect_to :back }
-    #   format.js { render partial: 'set_filter' }
-    # end
+    respond_to do |format|
+      format.js { render nothing: true, status: :found }
+      # format.js { render partial: 'set_filter' }
+      format.html { redirect_to :back }
+    end
   end
 
   private

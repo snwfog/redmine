@@ -18,11 +18,11 @@ module RedmineTreeky
         def index_with_custom_values
           respond_to do |format|
             format.html {
-              scope = Project.includes(:custom_values)
+              scope = Project.includes(custom_values: :custom_field)
               unless params[:closed]
                 scope = scope.active
               end
-              @projects = scope.order('lft').all
+              @projects = scope.visible.order('lft').all
             }
             format.api  {
               @offset, @limit = api_offset_and_limit

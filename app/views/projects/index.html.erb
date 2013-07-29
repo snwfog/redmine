@@ -29,6 +29,7 @@
   </thead>
   <tbody>
   <% ancestors = [] %>
+  <% favorite_project_field_ids = User.current.favorite_project_custom_field_ids %>
   <% for project in @projects %>
       <% rowid = "" %>
       <% classes = " #{favorite?(project) ? 'fav' : 'unfav'}" %>
@@ -94,9 +95,9 @@
           </td>
           <% project.visible_custom_field_values.each do |field| %>
             <% if !field.value.blank? %>
-              <%= content_tag(:td, h(show_value(field)), align: :center, class: "custom-field-#{field.custom_field.id}", style: User.current.favorite_project_custom_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
+              <%= content_tag(:td, h(show_value(field)), align: :center, class: "custom-field-#{field.custom_field.id}", style: favorite_project_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
             <% else %>
-               <%= content_tag(:td, "", align: :center, class: "custom-field-#{field.custom_field.id}", style: User.current.favorite_project_custom_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
+               <%= content_tag(:td, "", align: :center, class: "custom-field-#{field.custom_field.id}", style: favorite_project_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
             <% end %>
           <% end %>
           <td align="center"><%= format_date(project.created_on) %></td>
