@@ -11,4 +11,6 @@ $(function() {
 
     $(this).submit();
   });
+
+  $('#project-custom-label-filter').trigger('change');
 });
