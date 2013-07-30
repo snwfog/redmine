@@ -5,7 +5,7 @@ module RedmineTreeky
     module ProjectPatch
       def self.included(base) # :nodoc:
         # base.extend(ClassMethods)
-        # base.send(:include, InstanceMethods)
+        base.send(:include, InstanceMethods)
 
         base.class_eval do
           unloadable
@@ -19,10 +19,15 @@ module RedmineTreeky
         end
       end
 
-      # module ClassMethods
-      # end
-      # module InstanceMethods
-      # end
+      #module ClassMethods
+      #end
+      module InstanceMethods
+        def custom_values_hash
+          self.custom_values.map do |v|
+            { value: v, field: v.custom_field }
+          end
+        end
+      end
 
     end
 

@@ -10,9 +10,11 @@ else
 end
 
 object_to_prepare.to_prepare do
+  require_dependency 'redmine_treeky/patches/acts_as_customizable_patch'
+  require_dependency 'redmine_treeky/patches/custom_fields_helper_patch'
+  require_dependency 'redmine_treeky/patches/custom_field_patch'
   require_dependency 'redmine_treeky/patches/projects_helper_patch'
   require_dependency 'redmine_treeky/patches/projects_controller_patch'
-  require_dependency 'redmine_treeky/patches/custom_field_patch'
   require_dependency 'redmine_treeky/patches/project_patch'
   require_dependency 'redmine_treeky/patches/user_patch'
 end
@@ -20,7 +22,7 @@ end
 
 
 Redmine::Plugin.register :redmine_treeky do
-  name  'plugin'
+  name  'Redmine Treeky'
   author 'Charles Yang'
   description 'Series of custom features, merges and good stuffs.'
   version '0.0.1'
