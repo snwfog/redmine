@@ -113,6 +113,18 @@ function redrawTableStrip()
   });
 }
 
+$.fn.redrawTableStrip = function() {
+  var alt;
+  alt = 1;
+  return this.find('tbody tr:not(tr.hide)').each(function() {
+    var classProp;
+    classProp = $(this).prop('class');
+    classProp = classProp.replace(/(even|odd)/, "");
+    classProp += ((alt++) % 2) === 0 ? " even" : " odd";
+    return $(this).prop('class', classProp);
+  });
+};
+
 
 function showHide(EL, PM) {
   var els = document.getElementsByTagName('tr');
