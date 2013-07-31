@@ -12,9 +12,43 @@
 //});
 
 $(document).ready(function() {
-  $('#expand-all-projects').click(function(event) { toggle('closed'); event.preventDefault(); });
-  $('#collapse-all-projects').click(function(event) { toggle('closed'); toggle('open'); event.preventDefault(); });
-  $('#collapse-to-favorite-projects').click(function(event) { collapse_to_favorite(); event.preventDefault(); });
+  $('#collapse-expand-all-projects').click(function(event)
+  {
+    if (/\bCollapse\b/.exec($(this).html()))
+    {
+      toggle('open');
+      $(this).html("Expand All");
+    }
+    else
+    {
+      toggle('closed');
+      $(this).html("Collapse All");
+    }
+
+    event.preventDefault();
+  });
+
+  $('#only-favorite-projects').click(function(event)
+  {
+    if (/\bOnly Favorites\b/.exec($(this).html()))
+    {
+      filterFavoriteProjects();
+      $(this).html("Show All Projects");
+      $('#collapse-expand-all-projects').css({'display': 'none'});
+      $('tr:not(.hide) span.expander').css({'display': 'none'});
+    }
+    else
+    {
+      $('tr:not(.hide) span.expander').css({'display': ''});
+      $('#collapse-expand-all-projects').css({'display': ''});
+      $(this).html("Only Favorites");
+      unfilterFavoriteProjects();
+      toggle('closed');
+      $('#collapse-expand-all-projects').html("Collapse All");
+    }
+
+    event.preventDefault();
+  });
 });
 
 function toggle(state)
@@ -28,9 +62,11 @@ function toggle(state)
   });
 }
 
-function collapse_to_favorite()
+function filterFavoriteProjects()
 {
-  $('tr').each(function()
+  toggle('closed');
+
+  $('#projects-list tbody tr').each(function()
   {
     var classProp = $(this).prop('class');
     if (/\bfav\b/.exec(classProp))
@@ -39,17 +75,32 @@ function collapse_to_favorite()
     }
     else
     {
-      if (!/\bhide\b/.exec(classProp) && /([\d]{4})+/.exec(classProp))
+      if (!/\bhide\b/.exec(classProp))
       {
         $(this).prop('class', classProp + " hide");
       }
     }
   });
 
-  redraw_table_strip();
+  redrawTableStrip();
 }
 
-function redraw_table_strip()
+function unfilterFavoriteProjects()
+{
+  $('#projects-list tbody tr.hide').each(function()
+  {
+    var classProp = $(this).prop('class');
+    if (/\bhide\b/.exec(classProp))
+    {
+      $(this).prop('class', classProp.replace(/hide/, ''));
+    }
+  });
+
+  toggle('open');
+  redrawTableStrip();
+}
+
+function redrawTableStrip()
 {
   var alt = 0;
   $('#projects-list tr:not(tr.hide)').each(function()
