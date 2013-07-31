@@ -21,10 +21,11 @@
   <tr>
     <th></th>
     <th><%= l(:label_project) %></th>
+    <%= content_tag(:th, l(:field_description), class: "custom-field-description", style: favorite_project_extra_column.description ? "" : "display: none") %>
     <% available_custom_fields.each do |f| %>
       <%= content_tag(:th, f.name, class: "custom-field-#{f.id}", style: favorite_project_field_ids.include?(f.id) ? '' : 'display: none;') %>
     <% end %>
-    <th><%= l(:field_created_on) %></th>
+    <%= content_tag(:th, l(:field_created_on), class: "custom-field-created_on", style: favorite_project_extra_column.created_on ? "" : "display: none") %>
   </tr>
   </thead>
   <tbody>
@@ -92,6 +93,9 @@
             <%= project.active? ? link_to(h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => "project") : h(project.name) %>
             <%= content_tag :span, '&nbsp;'.html_safe, :onclick => openonclick, :class => "empty" %>
           </td>
+
+          <%= content_tag :td, :onclick => openonclick, class: "custom-field-description", style: favorite_project_extra_column.description ? "" : "display: none" do -%><%= textilizable project.short_description, :project => project %><% end -%>
+
           <% project.custom_field_values_with_args(available_custom_fields).each do |field| %>
             <% if !field.value.blank? %>
               <%= content_tag(:td, h(show_value(field)), align: :center, class: "custom-field-#{field.custom_field.id}", style: favorite_project_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
@@ -99,7 +103,10 @@
                <%= content_tag(:td, "", align: :center, class: "custom-field-#{field.custom_field.id}", style: favorite_project_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
             <% end %>
           <% end %>
-          <td align="center"><%= format_date(project.created_on) %></td>
+
+          <%= content_tag(:td, h(format_date(project.created_on)), align: :center,
+            class: "custom-field-created_on", style: favorite_project_extra_column.created_on ? '' : 'display: none;') %>
+
       <% end -%>
   <% end %>
   </tbody>
@@ -129,10 +136,10 @@
             <%= form_for(favorite_project_extra_column, method: :post,
                 url: '/custom_label_filter/update_extra_columns', remote: true,
                 html: { class: 'project-custom-label-filter'}) do |f| %>
-              <%= f.check_box :description %>
+              <%= f.check_box :description, { data: { field: 'description' }} %>
               <%= f.label :description, "Show description" %>
               <br />
-              <%= f.check_box :created_on %>
+              <%= f.check_box :created_on, { data: { field: 'created_on' }} %>
               <%= f.label :created_on, "Show creation date" %>
             <% end %>
           </fieldset>
