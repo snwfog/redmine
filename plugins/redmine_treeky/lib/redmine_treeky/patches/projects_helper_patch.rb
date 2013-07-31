@@ -10,8 +10,16 @@ module RedmineTreeky
       module InstanceMethods
         include FavoriteProjectsHelper
 
-        def custom_fields
-          CustomField.custom_field :ProjectCustomField
+        def available_custom_fields
+          @custom_field ||= CustomField.custom_field :ProjectCustomField
+        end
+
+        def favorite_project_extra_column
+          User.current.favorite_project_extra_column ||= FavoriteProjectExtraColumn.create
+        end
+
+        def favorite_project_field_ids
+          @favorite_project_fields_ids ||= User.current.favorite_project_custom_field_ids
         end
 
         ###

@@ -21,16 +21,14 @@
   <tr>
     <th></th>
     <th><%= l(:label_project) %></th>
-    <% available_custom_fields = custom_fields %>
     <% available_custom_fields.each do |f| %>
-      <%= content_tag(:th, f.name, class: "custom-field-#{f.id}", style: User.current.favorite_project_custom_field_ids.include?(f.id) ? '' : 'display: none;') %>
+      <%= content_tag(:th, f.name, class: "custom-field-#{f.id}", style: favorite_project_field_ids.include?(f.id) ? '' : 'display: none;') %>
     <% end %>
     <th><%= l(:field_created_on) %></th>
   </tr>
   </thead>
   <tbody>
   <% ancestors = [] %>
-  <% favorite_project_field_ids = User.current.favorite_project_custom_field_ids %>
   <% for project in @projects %>
       <% rowid = "" %>
       <% classes = " #{favorite?(project) ? 'fav' : 'unfav'}" %>
@@ -107,28 +105,42 @@
   </tbody>
 </table>
 
-<%= form_tag('/custom_label_filter', id: 'project-custom-label-filter',
-    remote: true) do %>
-  <fieldset class="collapsible collapsed">
-    <legend onclick="toggleFieldset(this);">Filters</legend>
-    <div style="display: none">
-      <table>
+<fieldset class="collapsible collapsed">
+  <legend onclick="toggleFieldset(this);">Filters</legend>
+  <div style="display: none">
+    <table>
+      <tr style="vertical-align: top">
         <td>
-          <td>
-            <fieldset>
-              <legend>Project custom fields</legend>
+          <fieldset>
+            <legend>Project custom fields</legend>
+            <%= form_tag('/custom_label_filter/update_custom_fields',
+              class: 'project-custom-label-filter', remote: true) do %>
               <% available_custom_fields.each do |field| %>
-                <%= check_box :project_custom_field, field.id, { data: { field: field.id }, checked: User.current.favorite_project_custom_field_ids.include?(field.id) } %>
+                <%= check_box :project_custom_field, field.id, { data: { field: field.id }, checked: favorite_project_field_ids.include?(field.id) } %>
                 <%= label_tag :project_custom_field, field.name %>
-              <br />
+                <br />
               <% end %>
-            </fieldset>
-          </td>
+            <% end %>
+          </fieldset>
         </td>
-      </table>
-    </div>
-  </fieldset>
-<% end %>
+        <td>
+          <fieldset>
+            <legend>Extra columns</legend>
+            <%= form_for(favorite_project_extra_column, method: :post,
+                url: '/custom_label_filter/update_extra_columns', remote: true,
+                html: { class: 'project-custom-label-filter'}) do |f| %>
+              <%= f.check_box :description %>
+              <%= f.label :description, "Show description" %>
+              <br />
+              <%= f.check_box :created_on %>
+              <%= f.label :created_on, "Show creation date" %>
+            <% end %>
+          </fieldset>
+        </td>
+      </tr>
+    </table>
+  </div>
+</fieldset>
 
 <% other_formats_links do |f| %>
     <%= f.link_to 'Atom', :url => {:key => User.current.rss_key} %>

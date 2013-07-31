@@ -17,6 +17,8 @@ module RedmineTreeky
           has_and_belongs_to_many :favorite_project_custom_fields,
               class_name: "CustomField", join_table: "favorite_project_custom_fields",
               foreign_key: "user_id", association_foreign_key: "custom_field_id"
+
+          has_one :favorite_project_extra_column
         end
       end
 
@@ -24,9 +26,7 @@ module RedmineTreeky
       end
 
       module InstanceMethods
-
       end
-
     end
   end
 end
