@@ -14,7 +14,7 @@
   <% (@custom_fields_by_type[tab[:name]] || []).sort.each do |custom_field| -%>
     <tr class="<%= cycle("odd", "even") %>" data-field-id="<%= custom_field.id %>" id="field_<%= custom_field.id %>">
       <td>
-        <%= content_tag(:span, '⦙⦙', class: 'dnd_handle') %>
+        <%= content_tag(:span, '⦙⦙', class: 'dnd-handle') %>
         <%= link_to  h(custom_field.name), edit_custom_field_path(custom_field) %>
       </td>
       <td align="center"><%= l(Redmine::CustomFieldFormat.label_for(custom_field.field_format)) %></td>

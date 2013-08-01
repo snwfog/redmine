@@ -3,6 +3,15 @@ $ ->
   $('.list tbody').sortable
     stop: (event, ui) ->
       $(this).parents('table').redrawTableStrip()
+      thisFieldId = ui.item.data('field-id')
+      position = $(this).sortable('toArray').indexOf("field_#{thisFieldId}") + 1
+      $.ajax
+        type: "PUT"
+        url: "/custom_fields/#{thisFieldId}"
+        data:
+          insert_at: position
+
+
     handle: "span.dnd-handle"
     cursor: "-webkit-grabbing"
 

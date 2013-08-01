@@ -5,7 +5,18 @@
 
     $('.list tbody').sortable({
       stop: function(event, ui) {
-        return $(this).parents('table').redrawTableStrip();
+        var position, thisFieldId;
+
+        $(this).parents('table').redrawTableStrip();
+        thisFieldId = ui.item.data('field-id');
+        position = $(this).sortable('toArray').indexOf("field_" + thisFieldId) + 1;
+        return $.ajax({
+          type: "PUT",
+          url: "/custom_fields/" + thisFieldId,
+          data: {
+            insert_at: position
+          }
+        });
       },
       handle: "span.dnd-handle",
       cursor: "-webkit-grabbing"
