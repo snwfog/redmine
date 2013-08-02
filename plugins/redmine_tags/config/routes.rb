@@ -1,2 +1,4 @@
-# Plugin's routes
-# See: http://guides.rubyonrails.org/routing.html
+resources :tag_descriptors
+resources :issues do
+  resources :tags, shallow: true
+end

@@ -10,7 +10,7 @@ else
 end
 
 object_to_prepare.to_prepare do
-  # require_dependency 'redmine_treeky/patches/acts_as_customizable_patch'
+  require_dependency 'patches/issue_patch'
 end
 
 Redmine::Plugin.register :redmine_tags do
