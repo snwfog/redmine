@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130217094251) do
+ActiveRecord::Schema.define(:version => 20130805182627) do
 
   create_table "attachments", :force => true do |t|
     t.integer  "container_id"
@@ -226,6 +226,21 @@ ActiveRecord::Schema.define(:version => 20130217094251) do
 
   add_index "enumerations", ["id", "type"], :name => "index_enumerations_on_id_and_type"
   add_index "enumerations", ["project_id"], :name => "index_enumerations_on_project_id"
+
+  create_table "favorite_project_custom_fields", :id => false, :force => true do |t|
+    t.integer "user_id",         :null => false
+    t.integer "custom_field_id", :null => false
+  end
+
+  add_index "favorite_project_custom_fields", ["user_id", "custom_field_id"], :name => "user_project_custom_fields"
+
+  create_table "favorite_project_extra_columns", :force => true do |t|
+    t.integer  "user_id"
+    t.boolean  "description"
+    t.boolean  "created_on"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
 
   create_table "favorite_projects", :force => true do |t|
     t.integer "project_id"
@@ -491,6 +506,22 @@ ActiveRecord::Schema.define(:version => 20130217094251) do
   end
 
   add_index "settings", ["name"], :name => "index_settings_on_name"
+
+  create_table "tag_descriptors", :force => true do |t|
+    t.string   "description"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  add_index "tag_descriptors", ["description"], :name => "index_tag_descriptors_on_description"
+
+  create_table "tags", :force => true do |t|
+    t.integer  "tag_descriptor_id"
+    t.integer  "issue_id"
+    t.integer  "severity"
+    t.datetime "created_at",        :null => false
+    t.datetime "updated_at",        :null => false
+  end
 
   create_table "time_entries", :force => true do |t|
     t.integer  "project_id",  :null => false

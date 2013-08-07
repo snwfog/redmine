@@ -87,9 +87,10 @@ group :test do
 end
 
 group :development, :test do
-  #gem "jazz_hands"
-  #gem "better_errors"
-  #gem "binding_of_caller"
+  gem "jazz_hands"
+  gem "better_errors"
+  gem "meta_request"
+  gem "binding_of_caller"
 end
 
 local_gemfile = File.join(File.dirname(__FILE__), "Gemfile.local")
