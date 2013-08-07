@@ -13,7 +13,7 @@ module RedmineEnhDragNDropCustomField
 
       module InstanceMethods
         def update_with_drag_n_drop
-          if params[:insert_at] && @custom_field.insert_at(params[:insert_at])
+          if !params[:insert_at].nil? && @custom_field.insert_at(params[:insert_at])
             respond_to do |format|
               format.js { render nothing: true, status: :found }
             end
