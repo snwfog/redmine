@@ -3,6 +3,9 @@ RedmineApp::Application.configure do
   # The production environment is meant for finished, "live" apps.
   # Code is not reloaded between requests
   config.cache_classes = true
+  # Force all environments to use the same logger level
+  # (by default production uses :info, the others :debug)
+  config.log_level = :debug
 
   #####
   # Customize the default logger (http://ruby-doc.org/core/classes/Logger.html)
