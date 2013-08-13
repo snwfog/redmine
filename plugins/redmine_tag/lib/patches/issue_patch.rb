@@ -10,11 +10,17 @@ module RedmineTag
         base.class_eval do
           unloadable
 
+          #default_scope { joins('LEFT OUTER JOIN tags ON tags.issue_id = issues.id')
+          #  .joins('LEFT OUTER JOIN tag_descriptors ON tags.tag_descriptor_id = tag_descriptors.id') }
+          default_scope { includes(tags: [:tag_descriptor]) }
+
           has_many :tags
           has_many :tag_descriptors, through: :tags
 
           safe_attributes 'tags',
           :if => lambda { |issue, user| issue.new_record? || user.allowed_to?(:edit_issues, issue.project)  }
+
+
 
           alias_method_chain :init_journal, :tags
           alias_method_chain :create_journal, :tags
@@ -69,7 +75,7 @@ module RedmineTag
             if @tags_before_change
               @tags_before_change.each do |tag|
                 if (self.tag_descriptor_ids.include?(tag.tag_descriptor_id))
-                  updated_tag = Tag.find_by_tag_descriptor_id(tag.tag_descriptor_id)
+                  updated_tag = Tag.find_by_issue_id_and_tag_descriptor_id(tag.issue_id, tag.tag_descriptor_id)
                   # Tag update
                   if updated_tag.severity != tag.severity
                     @current_journal.details << JournalDetail.new(property: "tag", prop_key: updated_tag.tag_descriptor.description, old_value: tag.severity, value: updated_tag.severity)
