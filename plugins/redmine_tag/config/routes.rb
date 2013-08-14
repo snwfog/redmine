@@ -1,4 +1,3 @@
-resources :tag_descriptors
-resources :issues do
-  resources :tags, shallow: true
-end
+match 'admin/tags', :controller => 'admin', :action => 'plugins', :via => :get
+
+resources :tags

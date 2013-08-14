@@ -14,6 +14,8 @@ object_to_prepare.to_prepare do
   require_dependency 'patches/issues_controller_patch'
   require_dependency 'patches/issues_helper_patch'
   require_dependency 'patches/issue_query_patch'
+  require_dependency 'patches/query_patch'
+
 end
 
 Redmine::Plugin.register :redmine_tag do
@@ -22,6 +24,8 @@ Redmine::Plugin.register :redmine_tag do
   description 'This plugin add taggability to Redmine issues/tasks'
   version '0.0.1'
   author_url 'http://charlescy.com'
+
+  menu :admin_menu, :tags, { controller: :tags, action: :index }, caption: :Tags, after: :custom_fields
 end
 
 class RedmineTagsViewListener < Redmine::Hook::ViewListener
