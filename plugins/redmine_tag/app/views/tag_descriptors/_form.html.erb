@@ -1,0 +1,4 @@
+<%= form_for tag, remote: true, :html => {:'data-type' => 'json'} do |f| %>
+  <%= f.text_field :description, size: tag.description.length %>
+  <%= image_submit_tag 'toggle_check.png' %>
+<% end %>

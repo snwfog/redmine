@@ -24,7 +24,7 @@
 <div class="tags">
   <ul class="tags">
     <% @issue.tags.each do |tag| %>
-      <li class="severity-<%= tag.severity %>"><%= tag.tag_descriptor.description %></li>
+      <li><%= tag.tag_descriptor.description %></li>
     <% end %>
   </ul>
 </div>

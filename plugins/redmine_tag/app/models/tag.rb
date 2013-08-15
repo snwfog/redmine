@@ -6,14 +6,14 @@ class Tag < ActiveRecord::Base
   belongs_to :issue
   belongs_to :tag_descriptor
 
-
-  validates :severity, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 9 }
-
   validates :tag_descriptor_id, uniqueness: { scope: [:issue_id, :severity] }
 
+  def description
+    self.tag_descriptor.description
+  end
 
   def to_s
-    "!" * self.severity + self.tag_descriptor.description if self.severity && self.tag_descriptor
+    self.tag_descriptor.description if self.tag_descriptor
   end
 end
 

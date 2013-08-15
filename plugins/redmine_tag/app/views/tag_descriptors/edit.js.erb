@@ -1,0 +1,19 @@
+$li = $("li#<%= @tag.id %>.tags")
+$deleteBtn = $li.children('a.remove');
+$anchor = $li.children('a[data-remote]').detach();
+$deleteBtn.before("<%= j render partial: 'form', :locals => {:tag => @tag } %>")
+$li.find('form').on("ajax:success", function(e, data, status, xhr) {
+  var tagDescriptor = data.tag_descriptor
+  $li.children('form').remove();
+  $anchor.html(tagDescriptor.description);
+  $deleteBtn.before($anchor);
+}).bind("ajax:error", function(e, data, status, xhr) {
+  err = JSON.parse(data.responseText);
+  console.log(err);
+  messages = "";
+  $.each(err, function(msg) {
+    desc = err[msg][0].charAt(0).toUpperCase() + err[msg][0].slice(1);
+    messages += (desc + ".\n");
+  })
+  alert(messages);
+});

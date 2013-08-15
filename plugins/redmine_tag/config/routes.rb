@@ -1,3 +1,3 @@
-match 'admin/tags', :controller => 'admin', :action => 'plugins', :via => :get
-
-resources :tags
+scope '/admin' do
+  resources :tag_descriptors, path: :tags
+end

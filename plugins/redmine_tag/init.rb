@@ -25,7 +25,7 @@ Redmine::Plugin.register :redmine_tag do
   version '0.0.1'
   author_url 'http://charlescy.com'
 
-  menu :admin_menu, :tags, { controller: :tags, action: :index }, caption: :Tags, after: :custom_fields
+  menu :admin_menu, :tags, { controller: :tag_descriptors, action: :index }, caption: :Tags, after: :custom_fields
 end
 
 class RedmineTagsViewListener < Redmine::Hook::ViewListener

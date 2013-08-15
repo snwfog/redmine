@@ -1,0 +1,28 @@
+<h2>Tags</h2>
+
+<fieldset class="collapsible collapsed">
+  <legend onclick="toggleFieldset(this);">Create tag</legend>
+  <div style="display: none">
+    <table>
+      <tr style="vertical-align: top">
+        <td>
+          <%= form_for TagDescriptor.new do |f| %>
+            <%= f.text_field :description, length: 20 %>
+            <%= f.submit "Create Tag" %>
+          <% end %>
+        <td>
+    </table>
+  </div>
+</fieldset>
+
+<div id="tag-edit-cloud">
+  <% @tags.each do |tag| %>
+    <%= content_tag :ul, class: :tags do  %>
+      <%= content_tag :li, id: tag[:tag].id, class: :tags do %>
+        <%= tag[:tag_count] %>
+        <%= link_to tag[:tag].description, edit_tag_descriptor_path(tag[:tag]), remote: true %>
+        <%= link_to (image_tag('delete.png').html_safe), tag[:tag], confirm: "Are you sure?", method: :delete, class: :remove %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
