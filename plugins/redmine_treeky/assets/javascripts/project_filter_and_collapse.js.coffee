@@ -6,8 +6,6 @@ $ ->
       if ($(this).is(':checked')) then $td.css("display", "") else $td.css("display", "none")
     $(this).submit();
 
-  $('.project-custom-label-filter').trigger('change')
-
   $('#collapse-expand-all-projects').on 'click', (e) ->
     e.preventDefault()
     $anchor = $(this)
@@ -29,7 +27,7 @@ $ ->
       $anchor.html("Show All Projects")
       $('tr.closed.parent span.expander').toggleExpander()
       $('#collapse-expand-all-projects').css({'display': 'none'})
-      $('tr:not(.hide) span.expander').css({'display': 'none'})
+      $('tr span.expander').hide()
       $('#projects-list tbody tr').each ->
         $(this).removeClass('hide') if $(this).hasClass('fav')
         $(this).addClass('hide') unless $(this).hasClass('fav')
@@ -40,7 +38,7 @@ $ ->
     else if ($anchor.hasClass('fav'))
       $anchor.removeClass('fav').addClass('all')
       $anchor.html("Only Favorites")
-      $('tr:not(.hide) span.expander').css({'display': ''})
+      $('tr span.expander').show()
       $('#collapse-expand-all-projects').css({'display': ''})
       $('#projects-list tbody tr').each ->
         $(this).removeClass('hide')
@@ -48,7 +46,6 @@ $ ->
       $('#collapse-expand-all-projects').html("Collapse All")
       $('#collapse-expand-all-projects').removeClass('collapsed').addClass('expanded')
     $('tbody tr:not(tr.hide)').redrawTableStrip()
-
 
   $.fn.toggleExpander = ->
     this.each ->
@@ -61,3 +58,6 @@ $ ->
       $(this).removeClass('even odd')
       klass = ((alt++) %2) == 0 ? "even" : "odd"
       $(this).addClass(klass)
+
+  $('#only-favorite-projects').trigger('click')
+  $('.project-custom-label-filter').trigger('change')
