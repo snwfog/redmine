@@ -15,7 +15,6 @@
       });
       return $(this).submit();
     });
-    $('.project-custom-label-filter').trigger('change');
     $('#collapse-expand-all-projects').on('click', function(e) {
       var $anchor;
 
@@ -44,9 +43,7 @@
         $('#collapse-expand-all-projects').css({
           'display': 'none'
         });
-        $('tr:not(.hide) span.expander').css({
-          'display': 'none'
-        });
+        $('tr span.expander').hide();
         $('#projects-list tbody tr').each(function() {
           if ($(this).hasClass('fav')) {
             $(this).removeClass('hide');
@@ -58,9 +55,7 @@
       } else if ($anchor.hasClass('fav')) {
         $anchor.removeClass('fav').addClass('all');
         $anchor.html("Only Favorites");
-        $('tr:not(.hide) span.expander').css({
-          'display': ''
-        });
+        $('tr span.expander').show();
         $('#collapse-expand-all-projects').css({
           'display': ''
         });
@@ -80,7 +75,7 @@
         }
       });
     };
-    return $.fn.redrawTableStrip = function() {
+    $.fn.redrawTableStrip = function() {
       var alt;
 
       alt = 1;
@@ -94,6 +89,8 @@
         return $(this).addClass(klass);
       });
     };
+    $('#only-favorite-projects').trigger('click');
+    return $('.project-custom-label-filter').trigger('change');
   });
 
 }).call(this);
