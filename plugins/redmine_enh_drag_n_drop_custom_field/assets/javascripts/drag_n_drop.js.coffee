@@ -18,11 +18,12 @@ $ ->
   # Mouse cursor behaviour
   $('span.dnd-handle').mouseenter (event) ->
     classProp = $(this).prop 'class'
-    $(this).prop 'class', classProp + " mouseover"
+    ($(this).prop 'class', classProp + " mouseover") unless (/mouseover/.test classProp)
 
   removeMouseOver = (event) ->
     classProp = $(event.target).prop 'class'
-    $(event.target).prop 'class', (classProp.replace /\s+mouseover/, '')
+    if (/mouseover/.test classProp)
+      $(event.target).prop 'class', (classProp.replace /\s+mouseover/, '')
 
   $('span.dnd-handle').mousedown removeMouseOver
   $('span.dnd-handle').mouseleave removeMouseOver

@@ -25,13 +25,17 @@
       var classProp;
 
       classProp = $(this).prop('class');
-      return $(this).prop('class', classProp + " mouseover");
+      if (!(/mouseover/.test(classProp))) {
+        return $(this).prop('class', classProp + " mouseover");
+      }
     });
     removeMouseOver = function(event) {
       var classProp;
 
       classProp = $(event.target).prop('class');
-      return $(event.target).prop('class', classProp.replace(/\s+mouseover/, ''));
+      if (/mouseover/.test(classProp)) {
+        return $(event.target).prop('class', classProp.replace(/\s+mouseover/, ''));
+      }
     };
     $('span.dnd-handle').mousedown(removeMouseOver);
     return $('span.dnd-handle').mouseleave(removeMouseOver);
