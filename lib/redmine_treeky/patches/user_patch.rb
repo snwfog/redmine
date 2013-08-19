@@ -26,6 +26,9 @@ module RedmineTreeky
       end
 
       module InstanceMethods
+        def favorite?(project)
+          self.favorite_project_ids.include?(project.id)
+        end
       end
     end
   end

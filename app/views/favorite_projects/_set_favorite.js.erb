@@ -1,28 +1,23 @@
-<% selector = "#favorite_project_#{@project.id}" %>
-$("<%= selector %>").each(function()
+var clickHandler = function(evt)
 {
-  $parentTr = $(this).parents('tr');
-  classProp = $parentTr.prop('class');
+  console.log("click handler");
+};
 
-  if ("<%= favorite?(@project) %>" == "true")
-  {
-    if (/\bunfav\b/.exec(classProp))
-    {
-      $parentTr.prop('class', classProp.replace(/\bunfav\b/, 'fav'));
-    }
-  }
-  else
-  {
-    if (/\bfav\b/.exec(classProp))
-    {
-      $parentTr.prop('class', classProp.replace(/\bfav\b/, 'unfav'));
-    }
 
-  }
+var $span = $("<%= j("#favorite_project#{@project.id}") %>");
+var $parentTr = $(this).parents('tr');
+if ("<%= favorite?(@project) %>" == "true" && $parentTr.hasClass('unfav'))
+{
+  $parentTr.removeClass('unfav').addClass('fav');
+}
+else if ($parentTr.hasClass('fav'))
+{
+  $parentTr.removeClass('fav').addClass('unfav');
+}
 
-  $(this).replaceWith("<%= j favorite_tag(@project, User.current) %>");
-
-});
+var $newSpan = $("<%= j favorite_tag(@project, User.current) %>");
+$span.find('a').on('click', clickHandler);
+$span.replaceWith($newSpan);
 
 <% @project = nil %>
 $('#quick-search > select').html("<%= j render_project_jump_box %>");
