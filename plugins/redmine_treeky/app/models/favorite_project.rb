@@ -1,7 +1,14 @@
 class FavoriteProject < ActiveRecord::Base
   unloadable
+  validates_uniqueness_of :user_id, scope: :project_id
+  validates_presence_of :user_id, :project_id
 
-  def self.favorite?(project_id, user_id=User.current.id)
-    not FavoriteProject.find_by_project_id_and_user_id(project_id, user_id).nil?
+  attr_accessible :project_id
+  attr_accessor :user_id, :project_id
+
+  after_initialize :set_user_id
+
+  def set_user_id
+    @user_id ||= User.current.id
   end
 end

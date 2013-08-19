@@ -2,6 +2,15 @@ class FavoriteProjectsController < ApplicationController
   unloadable
   before_filter :find_project_by_project_id, :except => :search
 
+  def create
+    fav_project = FavoriteProject.new(project_id: @project.id)
+    if fav_project.save
+      respond_to { render :nothing, status: :ok }
+    else
+      respond_to { render :nothing, status: :bad_request }
+    end
+  end
+
   def favorite
     if @project.respond_to?(:visible?) && !@project.visible?(User.current)
       render_403
