@@ -2,27 +2,49 @@
 (function() {
   $(function() {
     $('tbody tr form').on('ajax:success', function(evt, data, status, xhr) {
-      var $parentTr, submitType;
+      var $parentTr, $submitType;
 
       $parentTr = $(this).parents('tr');
-      submitType = $(this).find('input[name="_method"]');
+      $submitType = $(this).find('input[name="_method"]');
       if ($parentTr.hasClass('fav')) {
         $parentTr.removeClass('fav').addClass('unfav');
         $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav');
-        if (submitType != null) {
-          return submitType.attr('value', 'post');
+        if ($submitType != null) {
+          return $submitType.attr('value', 'post');
         }
       } else if ($parentTr.hasClass('unfav')) {
         $parentTr.removeClass('unfav').addClass('fav');
-        if (submitType == null) {
-          $(this).find('form').prepend($('<input>').attr('name', '_method').attr('type', 'hidden'));
+        if (!$submitType.exists()) {
+          $submitType = $('<input>').attr('name', '_method').attr('type', 'hidden');
+          $(this).find('div').prepend($submitType);
         }
-        submitType.attr('value', 'delete');
-        return $(this).find('input[type="submit"]').removeClass('unfav').addClass('fav');
+        $submitType.attr('value', 'delete');
+        $(this).find('input[type="submit"]').removeClass('unfav').addClass('fav');
+        return $(this).tagParent();
       }
     }).bind('ajax:failure', function(evt, data, status, xhr) {
       return console.log("Something went horribly wrong. And it's all Charles' faults");
     });
+    $.fn.tagParent = function() {
+      var $el, $tr, closestParent, klazz, parents;
+
+      $el = this;
+      klazz = $el.parents('tr').attr('class');
+      parents = klazz.match(/[\d]{4}/g);
+      if (parents) {
+        closestParent = parents.reverse()[0];
+        console.group("Flagging parent span " + closestParent);
+        $tr = $("tr#" + closestParent + "span");
+        console.log($tr.get(0));
+        if (!$tr.hasClass('fav')) {
+          $tr.find('form').submit();
+        }
+        return console.groupEnd();
+      }
+    };
+    $.fn.exists = function() {
+      return this.length !== 0;
+    };
     $('.project-custom-label-filter').change(function(e) {
       $(this).find('input[type=checkbox]').each(function() {
         var $td, classId;
