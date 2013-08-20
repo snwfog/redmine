@@ -2,15 +2,10 @@ module FavoriteProjectsHelper
   def favorite_tag(project, user, options={})
     return '' unless user && user.logged? && user.member_of?(project)
 
-    # TODO: Use relationship instead of just static methods
-
-    favorite = user.favorite?(project)
-    image_tag = content_tag(:div, '', class: (favorite ? :fav : :unfav))
-    if favorite
-      fav_project = user.favorite_projects.select{|p| p.id == project.id}
-      url = link_to(image_tag, fav_project, method: :delete, remote: true)
+    if user.favorite?(project)
+      url = button_to('', delete_favorite_project_path(project.id), data: {project_id: project.id}, method: :delete, class: :fav, remote: true)
     else
-      url = link_to(image_tag, {controller: 'favorite_projects', project_id: project.id}, method: :post, remote: true)
+      url = button_to('', create_favorite_project_path(project.id), data: {project_id: project.id}, method: :post, class: :unfav, remote: true)
     end
 
     content_tag("span", url, :id => "favorite_project_#{project.id}").html_safe
