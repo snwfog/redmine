@@ -68,3 +68,17 @@ table#projects-list td
 {
   padding-right: 0px;
 }
+
+tr div.fav
+{
+  background-image: url(../images/fav.png);
+  width: 16px;
+  height: 16px;
+}
+
+tr div.unfav
+{
+  background-image: url(../images/fav_off.png);
+  width: 16px;
+  height: 16px;
+}
