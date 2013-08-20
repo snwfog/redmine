@@ -1,11 +1,20 @@
 $ ->
   # Handles expanding and collapsing project
-  $('span.expander').on 'click.regular', (event) ->
+  $('span.expander').on 'click', (event) ->
+    if ($('#only-favorite-projects').hasClass('all'))
+      $(this).trigger('click.regular')
+    else
+      $(this).trigger('click.favorite')
+
+  expandRegular = (event) ->
     if ($(this).parents('tr').hasClass('open'))
       $(this).collapseExpander()
     else
       $(this).expandExpander()
     $('table').redrawTableStrip()
+
+  expandFavorite = (event) ->
+    console.log("Expanding favorites only...")
 
   $.fn.collapseExpander = ->
     $tr = this.parents('tr')
@@ -96,26 +105,25 @@ $ ->
     if ($anchor.hasClass('all'))
       $anchor.removeClass('all').addClass('fav')
       $anchor.html("Show All Projects")
-      $('tr.closed.parent span.expander').toggleExpander()
+#      $('tr.closed.parent span.expander').toggleExpander()
       $('#collapse-expand-all-projects').hide()
-#      $('tr span.expander').hide()
       $('#projects-list tbody tr').each ->
         $(this).removeClass('hide') if $(this).hasClass('fav')
         $(this).addClass('hide') unless $(this).hasClass('fav')
-##        if $(this).hasClass 'fav'
-##          $(this).removeClass('fav').addClass('hide')
-#        else if $(this).hasClass 'hide'
-#          $(this).removeClass('hide').addClass('fav')
+
+      $('span.expander').off('click.regular')
+      $('span.expander').on('click.favorite', expandFavorite)
     else if ($anchor.hasClass('fav'))
       $anchor.removeClass('fav').addClass('all')
       $anchor.html("Only Favorites")
-#      $('tr span.expander').show()
       $('#collapse-expand-all-projects').show()
       $('#projects-list tbody tr').each ->
         $(this).removeClass('hide')
-      $('tr.closed.parent span.expander').toggleExpander()
+#      $('tr.closed.parent span.expander').toggleExpander()
       $('#collapse-expand-all-projects').html("Collapse All")
       $('#collapse-expand-all-projects').removeClass('collapsed').addClass('expanded')
+      $('span.expander').off('click.favorite')
+      $('span.expander').on('click.regular', expandRegular)
     $('table').redrawTableStrip()
 
   $.fn.toggleExpander = ->
