@@ -69,16 +69,28 @@ table#projects-list td
   padding-right: 0px;
 }
 
-tr div.fav
+tr form input.fav
 {
   background-image: url(../images/fav.png);
   width: 16px;
   height: 16px;
+  border: none;
+  background-repeat: no-repeat;
+  background-color: transparent;
 }
 
-tr div.unfav
+tr form input.unfav
 {
   background-image: url(../images/fav_off.png);
   width: 16px;
   height: 16px;
+  border: none;
+  background-repeat: no-repeat;
+  background-color: transparent;
 }
+
+tr form input:hover
+{
+  cursor: pointer;
+}
+
