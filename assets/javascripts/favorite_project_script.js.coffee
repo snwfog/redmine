@@ -3,21 +3,39 @@ $ ->
   # Handles success/failure of fav/unfav projects
   $('tbody tr form').on('ajax:success', (evt, data, status, xhr) ->
     $parentTr = $(this).parents('tr')
-    submitType = $(this).find('input[name="_method"]')
+    $submitType = $(this).find('input[name="_method"]')
     if $parentTr.hasClass 'fav'
       # Removing favorite tr class
       $parentTr.removeClass('fav').addClass('unfav')
       $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav')
-      submitType.attr('value', 'post') if submitType?
+      $submitType.attr('value', 'post') if $submitType?
     else if $parentTr.hasClass 'unfav'
       # Adding favorite
       $parentTr.removeClass('unfav').addClass('fav')
-      $(this).find('form').prepend($('<input>').attr('name', '_method').attr('type', 'hidden')) unless submitType?
-      submitType.attr('value', 'delete')
+      unless $submitType.exists()
+        $submitType = $('<input>').attr('name', '_method').attr('type', 'hidden')
+        $(this).find('div').prepend($submitType)
+      $submitType.attr('value', 'delete')
       $(this).find('input[type="submit"]').removeClass('unfav').addClass('fav')
+      $(this).tagParent()
   ).bind('ajax:failure', (evt, data, status, xhr) ->
     console.log "Something went horribly wrong. And it's all Charles' faults"
   )
+
+  $.fn.tagParent = ->
+    $el = this
+    klazz = $el.parents('tr').attr('class')
+    parents = klazz.match /[\d]{4}/g
+    if parents
+      closestParent = parents.reverse()[0]
+      console.group("Flagging parent span #{closestParent}")
+      $tr = $("tr##{closestParent}span")
+      console.log($tr.get(0))
+      $tr.find('form').submit() unless $tr.hasClass('fav')
+      console.groupEnd()
+
+  $.fn.exists = ->
+    this.length != 0;
 
   $('.project-custom-label-filter').change (e) ->
       $(this).find('input[type=checkbox]').each ->
