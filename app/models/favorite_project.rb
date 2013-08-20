@@ -4,11 +4,9 @@ class FavoriteProject < ActiveRecord::Base
   validates_presence_of :user_id, :project_id
 
   attr_accessible :project_id
-  attr_accessor :user_id, :project_id
-
   after_initialize :set_user_id
 
   def set_user_id
-    @user_id ||= User.current.id
+    self.user_id ||= User.current.id
   end
 end

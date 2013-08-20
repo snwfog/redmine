@@ -5,9 +5,7 @@ module FavoriteProjectsHelper
     # TODO: Use relationship instead of just static methods
 
     favorite = user.favorite?(project)
-    #url = {:controller => 'favorite_projects',
-    #       :action => (favorite ? 'unfavorite' : 'favorite'), :project_id => project.id}
-    image_tag = image_tag(favorite ? 'fav.png' : 'fav_off.png', style: 'vertical-align: middle;')
+    image_tag = content_tag(:div, '', class: (favorite ? :fav : :unfav))
     if favorite
       fav_project = user.favorite_projects.select{|p| p.id == project.id}
       url = link_to(image_tag, fav_project, method: :delete, remote: true)

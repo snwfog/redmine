@@ -5,47 +5,20 @@ class FavoriteProjectsController < ApplicationController
   def create
     fav_project = FavoriteProject.new(project_id: @project.id)
     if fav_project.save
-      respond_to { render :nothing, status: :ok }
+      # Respond only to js, no need for respond_to block
+      render_api_ok
     else
-      respond_to { render :nothing, status: :bad_request }
+      # Nothing: true must always be set, for ajax request response
+      render_error status: :bad_request
     end
   end
 
-  def favorite
-    if @project.respond_to?(:visible?) && !@project.visible?(User.current)
-      render_403
-    else
-      set_favorite(User.current, true)
-    end
-  end
+  def destroy
 
-  def unfavorite
-    set_favorite(User.current, false)
   end
 
   # Returns the css class used to identify watch links for a given +object+
   def favorite_css(object)
     "#{object.class.to_s.underscore}-#{object.id}-favorite"
-  end
-
-  private
-
-  def set_favorite(user, favorite)
-    # Move this validation to the model
-    favorite_project = FavoriteProject.find_by_project_id_and_user_id(@project.id, user.id)
-
-    if favorite && favorite_project.nil?
-      FavoriteProject.create(project_id: @project.id, user_id: user.id)
-    else
-      favorite_project.destroy if favorite_project
-    end
-
-    respond_to do |format|
-      format.html { redirect_to :back }
-      format.js { render :partial => 'set_favorite' }
-    end
-
-  rescue ::ActionController::RedirectBackError
-    render :text => (favorite ? 'Favorite added.' : 'Favorite removed.'), :layout => true
   end
 end
