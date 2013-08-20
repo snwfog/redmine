@@ -1,4 +1,37 @@
 $ ->
+  # Handles expanding and collapsing project
+  $('span.expander').on 'click.regular', (event) ->
+    if ($(this).parents('tr').hasClass('open'))
+      $(this).collapseExpander()
+    else
+      $(this).expandExpander()
+    $('table').redrawTableStrip()
+
+  $.fn.collapseExpander = ->
+    $tr = this.parents('tr')
+    $tr.removeClass('open').addClass('closed')
+    projectId = $tr.attr('id').match(/[\d]{4}/)
+    # Select all children expander to collapse their projects
+    $("tr.open.parent.#{projectId} span.expander").each ->
+      $(this).collapseExpander()
+    $("tr.child.#{projectId}").hide()
+    $parentProjects = $("tr.parent.closed.#{projectId}")
+    if ($parentProjects.exists())
+      $parentProjects.each ->
+        $(this).hide()
+
+  $.fn.expandExpander = ->
+    $tr = this.parents('tr')
+    $tr.removeClass('closed').addClass('open')
+    projectId = $tr.attr('id').match(/[\d]{4}/)
+    # Select all children expander to collapse their projects
+    $("tr.closed.parent.#{projectId} span.expander").each ->
+      $(this).expandExpander()
+    $("tr.child.#{projectId}").show()
+    $parentProjects = $("tr.parent.open.#{projectId}")
+    if ($parentProjects.exists())
+      $parentProjects.each ->
+        $(this).show()
 
   # Handles success/failure of fav/unfav projects
   $('tbody tr form').on('ajax:success', (evt, data, status, xhr) ->
@@ -55,7 +88,7 @@ $ ->
       $anchor.addClass('expanded').removeClass('collapsed')
       $('tr.closed.parent span.expander').toggleExpander()
       $anchor.html("Collapse All")
-    $('tbody tr:not(tr.hide)').redrawTableStrip()
+    $('table').redrawTableStrip()
 
   $('#only-favorite-projects').on 'click', (e) ->
     e.preventDefault()
@@ -64,8 +97,8 @@ $ ->
       $anchor.removeClass('all').addClass('fav')
       $anchor.html("Show All Projects")
       $('tr.closed.parent span.expander').toggleExpander()
-      $('#collapse-expand-all-projects').css({'display': 'none'})
-      $('tr span.expander').hide()
+      $('#collapse-expand-all-projects').hide()
+#      $('tr span.expander').hide()
       $('#projects-list tbody tr').each ->
         $(this).removeClass('hide') if $(this).hasClass('fav')
         $(this).addClass('hide') unless $(this).hasClass('fav')
@@ -76,14 +109,14 @@ $ ->
     else if ($anchor.hasClass('fav'))
       $anchor.removeClass('fav').addClass('all')
       $anchor.html("Only Favorites")
-      $('tr span.expander').show()
-      $('#collapse-expand-all-projects').css({'display': ''})
+#      $('tr span.expander').show()
+      $('#collapse-expand-all-projects').show()
       $('#projects-list tbody tr').each ->
         $(this).removeClass('hide')
       $('tr.closed.parent span.expander').toggleExpander()
       $('#collapse-expand-all-projects').html("Collapse All")
       $('#collapse-expand-all-projects').removeClass('collapsed').addClass('expanded')
-    $('tbody tr:not(tr.hide)').redrawTableStrip()
+    $('table').redrawTableStrip()
 
   $.fn.toggleExpander = ->
     this.each ->
@@ -94,7 +127,7 @@ $ ->
     alt = 1;
     this.find('tbody tr:not(tr.hide)').each ->
       $(this).removeClass('even odd')
-      klass = ((alt++) %2) == 0 ? "even" : "odd"
+      klass = if ((alt++)%2) == 0 then "even" else "odd"
       $(this).addClass(klass)
 
   $('#only-favorite-projects').trigger('click')
