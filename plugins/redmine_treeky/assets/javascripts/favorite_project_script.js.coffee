@@ -67,6 +67,11 @@ $ ->
       $parentTr.removeClass('fav').addClass('unfav')
       $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav')
       $submitType.attr('value', 'post') if $submitType?
+      if $(this).parents("tr").hasClass('parent')
+        # Figure out this parent level
+        attr = $(this).parents("tr").attr("class").match(/[\d]{4}/g)
+        level = if attr? then attr.length else 0
+        $(this).parents("tr").tagChildren(level)
     else if $parentTr.hasClass 'unfav'
       # Adding favorite
       $parentTr.removeClass('unfav').addClass('fav')
@@ -81,6 +86,31 @@ $ ->
     console.log "Something went horribly wrong. And it's all Charles' faults"
   )
 
+  $.fn.fav = ->
+    this.removeClass('unfav').addClass('fav')
+
+  $.fn.unfav = ->
+    this.removeClass('fav').addClass('unfav')
+
+  $.fn.isFav = ->
+    this.hasClass 'fav'
+
+  $.fn.isUnfav = ->
+    this.hasClass 'unfav'
+
+  $.fn.isParent = ->
+    return true if this.hasClass 'parent'
+    return true if this.parents('tr').hasClass 'parent'
+    return false
+
+  $.fn.tagChildren = (level) ->
+    projectId = this.attr('id').match(/[\d]{4}/)[0]
+    els = $.grep $("tr.fav.#{projectId}"), (el) ->
+      klazz = $(el).attr("class").match(/[\d]{4}/g)
+      return klazz? && klazz.length == (level + 1)
+    $.each els, (index, el) ->
+      $(el).find('form').submit() if $(this).isFav()
+
   $.fn.tagParent = ->
     $el = this
     klazz = $el.parents('tr').attr('class')
@@ -92,6 +122,7 @@ $ ->
         return $el.exists()
       # Take the first parent tr which is the closest
       $("tr.unfav##{closestUnfavParents[0]}span").find('form').submit() if (closestUnfavParents.length > 0)
+
   $.fn.exists = ->
     this.length != 0;
 

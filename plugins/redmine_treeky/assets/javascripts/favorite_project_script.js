@@ -76,7 +76,7 @@
       }
     };
     $('tbody tr form').on('ajax:success', function(evt, data, status, xhr) {
-      var $parentTr, $submitType;
+      var $parentTr, $submitType, attr, level;
 
       $parentTr = $(this).parents('tr');
       $submitType = $(this).find('input[name="_method"]');
@@ -84,7 +84,12 @@
         $parentTr.removeClass('fav').addClass('unfav');
         $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav');
         if ($submitType != null) {
-          return $submitType.attr('value', 'post');
+          $submitType.attr('value', 'post');
+        }
+        if ($(this).parents("tr").hasClass('parent')) {
+          attr = $(this).parents("tr").attr("class").match(/[\d]{4}/g);
+          level = attr != null ? attr.length : 0;
+          return $(this).parents("tr").tagChildren(level);
         }
       } else if ($parentTr.hasClass('unfav')) {
         $parentTr.removeClass('unfav').addClass('fav');
@@ -99,6 +104,43 @@
     }).bind('ajax:failure', function(evt, data, status, xhr) {
       return console.log("Something went horribly wrong. And it's all Charles' faults");
     });
+    $.fn.fav = function() {
+      return this.removeClass('unfav').addClass('fav');
+    };
+    $.fn.unfav = function() {
+      return this.removeClass('fav').addClass('unfav');
+    };
+    $.fn.isFav = function() {
+      return this.hasClass('fav');
+    };
+    $.fn.isUnfav = function() {
+      return this.hasClass('unfav');
+    };
+    $.fn.isParent = function() {
+      if (this.hasClass('parent')) {
+        return true;
+      }
+      if (this.parents('tr').hasClass('parent')) {
+        return true;
+      }
+      return false;
+    };
+    $.fn.tagChildren = function(level) {
+      var els, projectId;
+
+      projectId = this.attr('id').match(/[\d]{4}/)[0];
+      els = $.grep($("tr.fav." + projectId), function(el) {
+        var klazz;
+
+        klazz = $(el).attr("class").match(/[\d]{4}/g);
+        return (klazz != null) && klazz.length === (level + 1);
+      });
+      return $.each(els, function(index, el) {
+        if ($(this).isFav()) {
+          return $(el).find('form').submit();
+        }
+      });
+    };
     $.fn.tagParent = function() {
       var $el, closestUnfavParents, klazz, parents;
 
