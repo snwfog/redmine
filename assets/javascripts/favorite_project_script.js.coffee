@@ -32,17 +32,18 @@ $ ->
 
     $tr = this.parents('tr')
     $tr.removeClass('open').addClass('closed')
-    projectId = $tr.attr('id').match(/[\d]{4}/)
-    # Select all children expander to collapse their projects
-    selector = "tr.open.parent.#{projectId}"
-    fav = if settings.favorite then ".fav" else ""
-    $("#{selector}#{fav} span.expander").each ->
-      $(this).collapseExpander(options)
-    $("tr.child.#{projectId}#{fav}").hide()
-    $parentProjects = $("tr.parent.closed.#{projectId}#{fav}")
-    if ($parentProjects.exists())
-      $parentProjects.each ->
-        $(this).hide()
+    if $tr.attr('id')
+      projectId = $tr.attr('id').match(/[\d]{4}/)
+      # Select all children expander to collapse their projects
+      selector = "tr.open.parent.#{projectId}"
+      fav = if settings.favorite then ".fav" else ""
+      $("#{selector}#{fav} span.expander").each ->
+        $(this).collapseExpander(options)
+      $("tr.child.#{projectId}#{fav}").hide()
+      $parentProjects = $("tr.parent.closed.#{projectId}#{fav}")
+      if ($parentProjects.exists())
+        $parentProjects.each ->
+          $(this).hide()
 
   $.fn.expandExpander = (options) ->
 
@@ -52,16 +53,17 @@ $ ->
 
     $tr = this.parents('tr')
     $tr.removeClass('closed').addClass('open')
-    projectId = $tr.attr('id').match(/[\d]{4}/)
-    # Select all children expander to collapse their projects
-    fav = if settings.favorite then ".fav" else ""
-    $("tr.closed.parent.#{projectId}#{fav} span.expander").each ->
-      $(this).expandExpander(options)
-    $("tr.child.#{projectId}#{fav}").show()
-    $parentProjects = $("tr.parent.open.#{projectId}#{fav}")
-    if ($parentProjects.exists())
-      $parentProjects.each ->
-        $(this).show()
+    if $tr.attr('id')
+      projectId = $tr.attr('id').match(/[\d]{4}/)
+      # Select all children expander to collapse their projects
+      fav = if settings.favorite then ".fav" else ""
+      $("tr.closed.parent.#{projectId}#{fav} span.expander").each ->
+        $(this).expandExpander(options)
+      $("tr.child.#{projectId}#{fav}").show()
+      $parentProjects = $("tr.parent.open.#{projectId}#{fav}")
+      if ($parentProjects.exists())
+        $parentProjects.each ->
+          $(this).show()
 
   # Handles success/failure of fav/unfav projects
   $('tbody tr form').on('ajax:success', (evt, data, status, xhr) ->
@@ -157,15 +159,25 @@ $ ->
     e.preventDefault()
     $anchor = $(this)
     if ($anchor.hasClass('all'))
+      # Toggle event listener
+      $('span.expander').off('clickRegular')
+      $('span.expander').on('clickFavorite', expandFavorite)
+
       $anchor.removeClass('all').addClass('fav')
       $anchor.html("Show all projects")
       $('#collapse-expand-all-projects').hide()
       $('#projects-list tbody tr').each ->
         if $(this).hasClass('fav') then $(this).show() else $(this).hide()
-        $(this).addClass('open').removeClass('closed') if $(this).hasClass('parent')
-      $('span.expander').off('clickRegular')
-      $('span.expander').on('clickFavorite', expandFavorite)
+        if $(this).hasClass 'parent'
+          $(this).addClass('open').removeClass('closed')
+          # Check if there are favorites child project
+          projectId = $(this).attr('id').match(/[\d]{4}/)
+          $(this).find('span.expander').off('clickFavorite') unless $("tr.fav.#{projectId}").exists()
     else if ($anchor.hasClass('fav'))
+      # Toggle event listener
+      $('span.expander').off('clickFavorite')
+      $('span.expander').on('clickRegular', expandRegular)
+
       $anchor.removeClass('fav').addClass('all')
       $anchor.html("Only favorites")
       $('#collapse-expand-all-projects').show()
@@ -174,8 +186,6 @@ $ ->
         $(this).addClass('open').removeClass('closed') if $(this).hasClass('parent')
       $('#collapse-expand-all-projects').html("Collapse all")
       $('#collapse-expand-all-projects').removeClass('collapsed').addClass('expanded')
-      $('span.expander').off('clickFavorite')
-      $('span.expander').on('clickRegular', expandRegular)
     $('table').redrawTableStrip()
 
   $.fn.redrawTableStrip = ->

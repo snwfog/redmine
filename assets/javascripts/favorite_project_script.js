@@ -39,18 +39,20 @@
       settings = $.extend({}, defaults, options);
       $tr = this.parents('tr');
       $tr.removeClass('open').addClass('closed');
-      projectId = $tr.attr('id').match(/[\d]{4}/);
-      selector = "tr.open.parent." + projectId;
-      fav = settings.favorite ? ".fav" : "";
-      $("" + selector + fav + " span.expander").each(function() {
-        return $(this).collapseExpander(options);
-      });
-      $("tr.child." + projectId + fav).hide();
-      $parentProjects = $("tr.parent.closed." + projectId + fav);
-      if ($parentProjects.exists()) {
-        return $parentProjects.each(function() {
-          return $(this).hide();
+      if ($tr.attr('id')) {
+        projectId = $tr.attr('id').match(/[\d]{4}/);
+        selector = "tr.open.parent." + projectId;
+        fav = settings.favorite ? ".fav" : "";
+        $("" + selector + fav + " span.expander").each(function() {
+          return $(this).collapseExpander(options);
         });
+        $("tr.child." + projectId + fav).hide();
+        $parentProjects = $("tr.parent.closed." + projectId + fav);
+        if ($parentProjects.exists()) {
+          return $parentProjects.each(function() {
+            return $(this).hide();
+          });
+        }
       }
     };
     $.fn.expandExpander = function(options) {
@@ -62,17 +64,19 @@
       settings = $.extend({}, defaults, options);
       $tr = this.parents('tr');
       $tr.removeClass('closed').addClass('open');
-      projectId = $tr.attr('id').match(/[\d]{4}/);
-      fav = settings.favorite ? ".fav" : "";
-      $("tr.closed.parent." + projectId + fav + " span.expander").each(function() {
-        return $(this).expandExpander(options);
-      });
-      $("tr.child." + projectId + fav).show();
-      $parentProjects = $("tr.parent.open." + projectId + fav);
-      if ($parentProjects.exists()) {
-        return $parentProjects.each(function() {
-          return $(this).show();
+      if ($tr.attr('id')) {
+        projectId = $tr.attr('id').match(/[\d]{4}/);
+        fav = settings.favorite ? ".fav" : "";
+        $("tr.closed.parent." + projectId + fav + " span.expander").each(function() {
+          return $(this).expandExpander(options);
         });
+        $("tr.child." + projectId + fav).show();
+        $parentProjects = $("tr.parent.open." + projectId + fav);
+        if ($parentProjects.exists()) {
+          return $parentProjects.each(function() {
+            return $(this).show();
+          });
+        }
       }
     };
     $('tbody tr form').on('ajax:success', function(evt, data, status, xhr) {
@@ -200,22 +204,30 @@
       e.preventDefault();
       $anchor = $(this);
       if ($anchor.hasClass('all')) {
+        $('span.expander').off('clickRegular');
+        $('span.expander').on('clickFavorite', expandFavorite);
         $anchor.removeClass('all').addClass('fav');
         $anchor.html("Show all projects");
         $('#collapse-expand-all-projects').hide();
         $('#projects-list tbody tr').each(function() {
+          var projectId;
+
           if ($(this).hasClass('fav')) {
             $(this).show();
           } else {
             $(this).hide();
           }
           if ($(this).hasClass('parent')) {
-            return $(this).addClass('open').removeClass('closed');
+            $(this).addClass('open').removeClass('closed');
+            projectId = $(this).attr('id').match(/[\d]{4}/);
+            if (!$("tr.fav." + projectId).exists()) {
+              return $(this).find('span.expander').off('clickFavorite');
+            }
           }
         });
-        $('span.expander').off('clickRegular');
-        $('span.expander').on('clickFavorite', expandFavorite);
       } else if ($anchor.hasClass('fav')) {
+        $('span.expander').off('clickFavorite');
+        $('span.expander').on('clickRegular', expandRegular);
         $anchor.removeClass('fav').addClass('all');
         $anchor.html("Only favorites");
         $('#collapse-expand-all-projects').show();
@@ -227,8 +239,6 @@
         });
         $('#collapse-expand-all-projects').html("Collapse all");
         $('#collapse-expand-all-projects').removeClass('collapsed').addClass('expanded');
-        $('span.expander').off('clickFavorite');
-        $('span.expander').on('clickRegular', expandRegular);
       }
       return $('table').redrawTableStrip();
     });
