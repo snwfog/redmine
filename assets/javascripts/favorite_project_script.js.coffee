@@ -156,21 +156,22 @@ $ ->
   $('#only-favorite-projects').on 'click', (e) ->
     e.preventDefault()
     $anchor = $(this)
-    $('tr.parent.closed span.expander').trigger('click')
     if ($anchor.hasClass('all'))
       $anchor.removeClass('all').addClass('fav')
       $anchor.html("Show all projects")
       $('#collapse-expand-all-projects').hide()
-      $('#projects-list tbody tr').each ->
+      $('tbody tr').each ->
         if $(this).hasClass('fav') then $(this).show() else $(this).hide()
+        $(this).addClass('open').removeClass('closed') if $(this).hasClass('parent')
       $('span.expander').off('clickRegular')
       $('span.expander').on('clickFavorite', expandFavorite)
     else if ($anchor.hasClass('fav'))
       $anchor.removeClass('fav').addClass('all')
       $anchor.html("Only favorites")
       $('#collapse-expand-all-projects').show()
-      $('#projects-list tbody tr').each ->
+      $('tbody tr').each ->
         $(this).show()
+        $(this).addClass('open').removeClass('closed') if $(this).hasClass('parent')
       $('#collapse-expand-all-projects').html("Collapse all")
       $('#collapse-expand-all-projects').removeClass('collapsed').addClass('expanded')
       $('span.expander').off('clickFavorite')

@@ -199,16 +199,18 @@
 
       e.preventDefault();
       $anchor = $(this);
-      $('tr.parent.closed span.expander').trigger('click');
       if ($anchor.hasClass('all')) {
         $anchor.removeClass('all').addClass('fav');
         $anchor.html("Show all projects");
         $('#collapse-expand-all-projects').hide();
-        $('#projects-list tbody tr').each(function() {
+        $('tbody tr').each(function() {
           if ($(this).hasClass('fav')) {
-            return $(this).show();
+            $(this).show();
           } else {
-            return $(this).hide();
+            $(this).hide();
+          }
+          if ($(this).hasClass('parent')) {
+            return $(this).addClass('open').removeClass('closed');
           }
         });
         $('span.expander').off('clickRegular');
@@ -217,8 +219,11 @@
         $anchor.removeClass('fav').addClass('all');
         $anchor.html("Only favorites");
         $('#collapse-expand-all-projects').show();
-        $('#projects-list tbody tr').each(function() {
-          return $(this).show();
+        $('tbody tr').each(function() {
+          $(this).show();
+          if ($(this).hasClass('parent')) {
+            return $(this).addClass('open').removeClass('closed');
+          }
         });
         $('#collapse-expand-all-projects').html("Collapse all");
         $('#collapse-expand-all-projects').removeClass('collapsed').addClass('expanded');
