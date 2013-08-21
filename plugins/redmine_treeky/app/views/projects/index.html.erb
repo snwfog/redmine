@@ -6,15 +6,55 @@
   <%= link_to(l(:label_project_new), {:controller => 'projects', :action => 'new'}, :class => 'icon icon-add') + ' |' if User.current.allowed_to?(:add_project, nil, :global => true) %>
   <%= link_to(l(:label_issue_view_all), {:controller => 'issues'}) + ' |' if User.current.allowed_to?(:view_issues, nil, :global => true) %>
   <%= link_to(l(:label_overall_spent_time), time_entries_path) + ' |' if User.current.allowed_to?(:view_time_entries, nil, :global => true) %>
-  <%= link_to l(:label_overall_activity), {:controller => 'activities', :action => 'index', :id => nil} %>
+  <%= link_to(l(:label_overall_activity), {:controller => 'activities', :action => 'index', :id => nil}) + " |"%>
+  <%= link_to(l(:filter_to_favorite_projects), {}, class: :all, :id => "only-favorite-projects") + " |" %>
+  <%= link_to(l(:collapse_expand_all_projects), {}, class: :collapsed, :id => "collapse-expand-all-projects") %>
 </div>
 
 <h2><%= l(:label_project_plural) %></h2>
 
-<p>
-  <a href="" class="all" id="only-favorite-projects"><%= l(:filter_to_favorite_projects) %></a> |
-  <a href="" class="collapsed" id="collapse-expand-all-projects"><%= l(:collapse_expand_all_projects) %></a>
-</p>
+<fieldset class="collapsible collapsed">
+  <legend onclick="toggleFieldset(this);">Select columns</legend>
+  <div style="display: none">
+    <table>
+      <tr style="vertical-align: top">
+        <td>
+          <fieldset>
+            <legend>Project custom fields</legend>
+            <% unless available_custom_fields.empty? %>
+              <%= form_tag('/custom_label_filter/update_custom_fields',
+                           class: 'project-custom-label-filter', remote: true) do %>
+                <% available_custom_fields.each do |field| %>
+                  <%= check_box :project_custom_field, field.id, { data: { field: field.id }, checked: favorite_project_field_ids.include?(field.id) } %>
+                  <%= label_tag :project_custom_field, field.name %>
+                  <br />
+                <% end %>
+              <% end %>
+            <% else %>
+              <p>No custom field.</p>
+            <% end %>
+          </fieldset>
+        </td>
+        <td>
+          <fieldset>
+            <legend>Extra columns</legend>
+            <%= form_for(favorite_project_extra_column, method: :post,
+                         url: '/custom_label_filter/update_extra_columns', remote: true,
+                         html: { class: 'project-custom-label-filter'}) do |f| %>
+              <%= f.check_box :description, { data: { field: 'description' }} %>
+              <%= f.label :description, "Show description" %>
+              <br />
+              <%= f.check_box :created_on, { data: { field: 'created_on' }} %>
+              <%= f.label :created_on, "Show creation date" %>
+            <% end %>
+          </fieldset>
+        </td>
+      </tr>
+    </table>
+  </div>
+</fieldset>
+
+
 
 <table class="list" id="projects-list">
   <thead>
@@ -117,46 +157,7 @@
   </tbody>
 </table>
 
-<fieldset class="collapsible collapsed">
-  <legend onclick="toggleFieldset(this);">Select columns</legend>
-  <div style="display: none">
-    <table>
-      <tr style="vertical-align: top">
-        <td>
-          <fieldset>
-            <legend>Project custom fields</legend>
-            <% unless available_custom_fields.empty? %>
-              <%= form_tag('/custom_label_filter/update_custom_fields',
-                class: 'project-custom-label-filter', remote: true) do %>
-                <% available_custom_fields.each do |field| %>
-                  <%= check_box :project_custom_field, field.id, { data: { field: field.id }, checked: favorite_project_field_ids.include?(field.id) } %>
-                  <%= label_tag :project_custom_field, field.name %>
-                  <br />
-                <% end %>
-              <% end %>
-            <% else %>
-              <p>No custom field.</p>
-            <% end %>
-          </fieldset>
-        </td>
-        <td>
-          <fieldset>
-            <legend>Extra columns</legend>
-            <%= form_for(favorite_project_extra_column, method: :post,
-                url: '/custom_label_filter/update_extra_columns', remote: true,
-                html: { class: 'project-custom-label-filter'}) do |f| %>
-              <%= f.check_box :description, { data: { field: 'description' }} %>
-              <%= f.label :description, "Show description" %>
-              <br />
-              <%= f.check_box :created_on, { data: { field: 'created_on' }} %>
-              <%= f.label :created_on, "Show creation date" %>
-            <% end %>
-          </fieldset>
-        </td>
-      </tr>
-    </table>
-  </div>
-</fieldset>
+
 
 <% other_formats_links do |f| %>
     <%= f.link_to 'Atom', :url => {:key => User.current.rss_key} %>

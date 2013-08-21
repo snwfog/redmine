@@ -2,9 +2,9 @@ $ ->
   # Handles expanding and collapsing project
   $('span.expander').on 'click', (event) ->
     if ($('#only-favorite-projects').hasClass('all'))
-      $(this).trigger('click.regular')
+      $(this).trigger('clickRegular')
     else
-      $(this).trigger('click.favorite')
+      $(this).trigger('clickFavorite')
 
   expandRegular = (event) ->
     if ($(this).parents('tr').hasClass('open'))
@@ -14,30 +14,46 @@ $ ->
     $('table').redrawTableStrip()
 
   expandFavorite = (event) ->
-    console.log("Expanding favorites only...")
+    if ($(this).parents('tr').hasClass('open'))
+      $(this).collapseExpander({favorite: true})
+    else
+      $(this).expandExpander({favorite: true})
+    $('table').redrawTableStrip()
 
-  $.fn.collapseExpander = ->
+  $.fn.collapseExpander = (options) ->
+    defaults =
+      favorite: false
+    settings = $.extend({}, defaults, options)
+
     $tr = this.parents('tr')
     $tr.removeClass('open').addClass('closed')
     projectId = $tr.attr('id').match(/[\d]{4}/)
     # Select all children expander to collapse their projects
-    $("tr.open.parent.#{projectId} span.expander").each ->
-      $(this).collapseExpander()
-    $("tr.child.#{projectId}").hide()
-    $parentProjects = $("tr.parent.closed.#{projectId}")
+    selector = "tr.open.parent.#{projectId}"
+    fav = if settings.favorite then ".fav" else ""
+    $("#{selector}#{fav} span.expander").each ->
+      $(this).collapseExpander(options)
+    $("tr.child.#{projectId}#{fav}").hide()
+    $parentProjects = $("tr.parent.closed.#{projectId}#{fav}")
     if ($parentProjects.exists())
       $parentProjects.each ->
         $(this).hide()
 
-  $.fn.expandExpander = ->
+  $.fn.expandExpander = (options) ->
+
+    defaults =
+      favorite: false
+    settings = $.extend({}, defaults, options)
+
     $tr = this.parents('tr')
     $tr.removeClass('closed').addClass('open')
     projectId = $tr.attr('id').match(/[\d]{4}/)
     # Select all children expander to collapse their projects
-    $("tr.closed.parent.#{projectId} span.expander").each ->
-      $(this).expandExpander()
-    $("tr.child.#{projectId}").show()
-    $parentProjects = $("tr.parent.open.#{projectId}")
+    fav = if settings.favorite then ".fav" else ""
+    $("tr.closed.parent.#{projectId}#{fav} span.expander").each ->
+      $(this).expandExpander(options)
+    $("tr.child.#{projectId}#{fav}").show()
+    $parentProjects = $("tr.parent.open.#{projectId}#{fav}")
     if ($parentProjects.exists())
       $parentProjects.each ->
         $(this).show()
@@ -59,6 +75,7 @@ $ ->
         $(this).find('div').prepend($submitType)
       $submitType.attr('value', 'delete')
       $(this).find('input[type="submit"]').removeClass('unfav').addClass('fav')
+      # Keep tagging parent even if this tr might already be favorited
       $(this).tagParent()
   ).bind('ajax:failure', (evt, data, status, xhr) ->
     console.log "Something went horribly wrong. And it's all Charles' faults"
@@ -69,13 +86,12 @@ $ ->
     klazz = $el.parents('tr').attr('class')
     parents = klazz.match /[\d]{4}/g
     if parents
-      closestParent = parents.reverse()[0]
-      console.group("Flagging parent span #{closestParent}")
-      $tr = $("tr##{closestParent}span")
-      console.log($tr.get(0))
-      $tr.find('form').submit() unless $tr.hasClass('fav')
-      console.groupEnd()
-
+      # Find next parent that is unfavorited
+      closestUnfavParents = $.grep parents.reverse(), (parentId, index) ->
+        $el = $("tr.unfav##{parentId}span")
+        return $el.exists()
+      # Take the first parent tr which is the closest
+      $("tr.unfav##{closestUnfavParents[0]}span").find('form').submit() if (closestUnfavParents.length > 0)
   $.fn.exists = ->
     this.length != 0;
 
@@ -91,39 +107,38 @@ $ ->
     $anchor = $(this)
     if ($anchor.hasClass('expanded'))
       $anchor.addClass('collapsed').removeClass('expanded')
-      $('tr.open.parent span.expander').toggleExpander()
-      $anchor.html("Expand All")
+      $('tr.parent.open span.expander').each ->
+        $(this).collapseExpander()
+      $anchor.html("Expand all")
     else if ($anchor.hasClass('collapsed'))
       $anchor.addClass('expanded').removeClass('collapsed')
-      $('tr.closed.parent span.expander').toggleExpander()
-      $anchor.html("Collapse All")
+      $('tr.parent.closed span.expander').each ->
+        $(this).expandExpander()
+      $anchor.html("Collapse all")
     $('table').redrawTableStrip()
 
   $('#only-favorite-projects').on 'click', (e) ->
     e.preventDefault()
     $anchor = $(this)
+    $('a.collapsed').trigger('click') unless $('a.expanded').exists()
     if ($anchor.hasClass('all'))
       $anchor.removeClass('all').addClass('fav')
-      $anchor.html("Show All Projects")
-#      $('tr.closed.parent span.expander').toggleExpander()
+      $anchor.html("Show all projects")
       $('#collapse-expand-all-projects').hide()
       $('#projects-list tbody tr').each ->
-        $(this).removeClass('hide') if $(this).hasClass('fav')
-        $(this).addClass('hide') unless $(this).hasClass('fav')
-
-      $('span.expander').off('click.regular')
-      $('span.expander').on('click.favorite', expandFavorite)
+        if $(this).hasClass('fav') then $(this).show() else $(this).hide()
+      $('span.expander').off('clickRegular')
+      $('span.expander').on('clickFavorite', expandFavorite)
     else if ($anchor.hasClass('fav'))
       $anchor.removeClass('fav').addClass('all')
-      $anchor.html("Only Favorites")
+      $anchor.html("Only favorites")
       $('#collapse-expand-all-projects').show()
       $('#projects-list tbody tr').each ->
-        $(this).removeClass('hide')
-#      $('tr.closed.parent span.expander').toggleExpander()
-      $('#collapse-expand-all-projects').html("Collapse All")
+        $(this).show()
+      $('#collapse-expand-all-projects').html("Collapse all")
       $('#collapse-expand-all-projects').removeClass('collapsed').addClass('expanded')
-      $('span.expander').off('click.favorite')
-      $('span.expander').on('click.regular', expandRegular)
+      $('span.expander').off('clickFavorite')
+      $('span.expander').on('clickRegular', expandRegular)
     $('table').redrawTableStrip()
 
   $.fn.toggleExpander = ->
@@ -133,7 +148,7 @@ $ ->
 
   $.fn.redrawTableStrip = ->
     alt = 1;
-    this.find('tbody tr:not(tr.hide)').each ->
+    this.find('tbody tr:visible').each ->
       $(this).removeClass('even odd')
       klass = if ((alt++)%2) == 0 then "even" else "odd"
       $(this).addClass(klass)

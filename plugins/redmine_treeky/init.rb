@@ -31,7 +31,6 @@ end
 class RedmineTreekyViewListener < Redmine::Hook::ViewListener
   # Adds javascript and stylesheet tags
   def view_layouts_base_html_head(context)
-    javascript_include_tag('projects_tree_view', :plugin => :redmine_treeky) +
     javascript_include_tag('favorite_project_script', :plugin => :redmine_treeky) +
         stylesheet_link_tag('projects_tree_view', :plugin => :redmine_treeky)
   end
