@@ -160,7 +160,7 @@ $ ->
       $anchor.removeClass('all').addClass('fav')
       $anchor.html("Show all projects")
       $('#collapse-expand-all-projects').hide()
-      $('tbody tr').each ->
+      $('#projects-list tbody tr').each ->
         if $(this).hasClass('fav') then $(this).show() else $(this).hide()
         $(this).addClass('open').removeClass('closed') if $(this).hasClass('parent')
       $('span.expander').off('clickRegular')
