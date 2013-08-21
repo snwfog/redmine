@@ -128,12 +128,7 @@
       <%= content_tag :tr, :class => classes, :id => rowid do -%>
           <td><%= favorite_tag(project, User.current) %></td>
           <td class="name">
-            <!--<%= content_tag :span, '', :style => "padding-left: #{(2*((ancestors.length) > 0 ? ancestors.length-1 : 0)).to_s}em;" %>-->
-            <%= content_tag :span, class: :indenter do %>
-              <% 2*((ancestors.length) > 0 ? ancestors.length-1 : 0).times do |i| %>
-                <%= content_tag :span, '', class: "indenter-#{i}", :style => 'padding-left: 2em;' %>
-              <% end %>
-            <% end %>
+            <%= content_tag :span, '', :style => "padding-left: #{(2*((ancestors.length) > 0 ? ancestors.length-1 : 0)).to_s}em;" %>
             <%= spanicon %>
             <%= project.active? ? link_to(h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => "project") : h(project.name) %>
             <%= content_tag :span, '&nbsp;'.html_safe, :onclick => openonclick, :class => "empty" %>
