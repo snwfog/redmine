@@ -1,11 +1,15 @@
 $ ->
-  # Handles expanding and collapsing project
+  # Handles expanding and collapsing project expander
+  # by issueing a custom events that the expander will
+  # be listening to depending on whether it is showing
+  # the full projects or only the favorite projects
   $('span.expander').on 'click', (event) ->
     if ($('#only-favorite-projects').hasClass('all'))
       $(this).trigger('clickRegular')
     else
       $(this).trigger('clickFavorite')
 
+  # Click handler that will show all projects
   expandRegular = (event) ->
     if ($(this).parents('tr').hasClass('open'))
       $(this).collapseExpander()
@@ -13,6 +17,7 @@ $ ->
       $(this).expandExpander()
     $('table').redrawTableStrip()
 
+  # Click handler that will show only favorite projects
   expandFavorite = (event) ->
     if ($(this).parents('tr').hasClass('open'))
       $(this).collapseExpander({favorite: true})
@@ -151,7 +156,7 @@ $ ->
   $('#only-favorite-projects').on 'click', (e) ->
     e.preventDefault()
     $anchor = $(this)
-    $('a.collapsed').trigger('click') unless $('a.expanded').exists()
+    $('tr.parent.closed span.expander').trigger('click')
     if ($anchor.hasClass('all'))
       $anchor.removeClass('all').addClass('fav')
       $anchor.html("Show all projects")
@@ -171,11 +176,6 @@ $ ->
       $('span.expander').off('clickFavorite')
       $('span.expander').on('clickRegular', expandRegular)
     $('table').redrawTableStrip()
-
-  $.fn.toggleExpander = ->
-    this.each ->
-      if typeof this.onclick == 'function'
-        this.onclick.call()
 
   $.fn.redrawTableStrip = ->
     alt = 1;

@@ -199,9 +199,7 @@
 
       e.preventDefault();
       $anchor = $(this);
-      if (!$('a.expanded').exists()) {
-        $('a.collapsed').trigger('click');
-      }
+      $('tr.parent.closed span.expander').trigger('click');
       if ($anchor.hasClass('all')) {
         $anchor.removeClass('all').addClass('fav');
         $anchor.html("Show all projects");
@@ -229,13 +227,6 @@
       }
       return $('table').redrawTableStrip();
     });
-    $.fn.toggleExpander = function() {
-      return this.each(function() {
-        if (typeof this.onclick === 'function') {
-          return this.onclick.call();
-        }
-      });
-    };
     $.fn.redrawTableStrip = function() {
       var alt;
 
