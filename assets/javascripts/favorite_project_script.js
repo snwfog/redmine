@@ -5,9 +5,9 @@
 
     $('span.expander').on('click', function(event) {
       if ($('#only-favorite-projects').hasClass('all')) {
-        return $(this).trigger('click.regular');
+        return $(this).trigger('clickRegular');
       } else {
-        return $(this).trigger('click.favorite');
+        return $(this).trigger('clickFavorite');
       }
     });
     expandRegular = function(event) {
@@ -19,36 +19,56 @@
       return $('table').redrawTableStrip();
     };
     expandFavorite = function(event) {
-      return console.log("Expanding favorites only...");
+      if ($(this).parents('tr').hasClass('open')) {
+        $(this).collapseExpander({
+          favorite: true
+        });
+      } else {
+        $(this).expandExpander({
+          favorite: true
+        });
+      }
+      return $('table').redrawTableStrip();
     };
-    $.fn.collapseExpander = function() {
-      var $parentProjects, $tr, projectId;
+    $.fn.collapseExpander = function(options) {
+      var $parentProjects, $tr, defaults, fav, projectId, selector, settings;
 
+      defaults = {
+        favorite: false
+      };
+      settings = $.extend({}, defaults, options);
       $tr = this.parents('tr');
       $tr.removeClass('open').addClass('closed');
       projectId = $tr.attr('id').match(/[\d]{4}/);
-      $("tr.open.parent." + projectId + " span.expander").each(function() {
-        return $(this).collapseExpander();
+      selector = "tr.open.parent." + projectId;
+      fav = settings.favorite ? ".fav" : "";
+      $("" + selector + fav + " span.expander").each(function() {
+        return $(this).collapseExpander(options);
       });
-      $("tr.child." + projectId).hide();
-      $parentProjects = $("tr.parent.closed." + projectId);
+      $("tr.child." + projectId + fav).hide();
+      $parentProjects = $("tr.parent.closed." + projectId + fav);
       if ($parentProjects.exists()) {
         return $parentProjects.each(function() {
           return $(this).hide();
         });
       }
     };
-    $.fn.expandExpander = function() {
-      var $parentProjects, $tr, projectId;
+    $.fn.expandExpander = function(options) {
+      var $parentProjects, $tr, defaults, fav, projectId, settings;
 
+      defaults = {
+        favorite: false
+      };
+      settings = $.extend({}, defaults, options);
       $tr = this.parents('tr');
       $tr.removeClass('closed').addClass('open');
       projectId = $tr.attr('id').match(/[\d]{4}/);
-      $("tr.closed.parent." + projectId + " span.expander").each(function() {
-        return $(this).expandExpander();
+      fav = settings.favorite ? ".fav" : "";
+      $("tr.closed.parent." + projectId + fav + " span.expander").each(function() {
+        return $(this).expandExpander(options);
       });
-      $("tr.child." + projectId).show();
-      $parentProjects = $("tr.parent.open." + projectId);
+      $("tr.child." + projectId + fav).show();
+      $parentProjects = $("tr.parent.open." + projectId + fav);
       if ($parentProjects.exists()) {
         return $parentProjects.each(function() {
           return $(this).show();
@@ -80,20 +100,19 @@
       return console.log("Something went horribly wrong. And it's all Charles' faults");
     });
     $.fn.tagParent = function() {
-      var $el, $tr, closestParent, klazz, parents;
+      var $el, closestUnfavParents, klazz, parents;
 
       $el = this;
       klazz = $el.parents('tr').attr('class');
       parents = klazz.match(/[\d]{4}/g);
       if (parents) {
-        closestParent = parents.reverse()[0];
-        console.group("Flagging parent span " + closestParent);
-        $tr = $("tr#" + closestParent + "span");
-        console.log($tr.get(0));
-        if (!$tr.hasClass('fav')) {
-          $tr.find('form').submit();
+        closestUnfavParents = $.grep(parents.reverse(), function(parentId, index) {
+          $el = $("tr.unfav#" + parentId + "span");
+          return $el.exists();
+        });
+        if (closestUnfavParents.length > 0) {
+          return $("tr.unfav#" + closestUnfavParents[0] + "span").find('form').submit();
         }
-        return console.groupEnd();
       }
     };
     $.fn.exists = function() {
@@ -120,12 +139,16 @@
       $anchor = $(this);
       if ($anchor.hasClass('expanded')) {
         $anchor.addClass('collapsed').removeClass('expanded');
-        $('tr.open.parent span.expander').toggleExpander();
-        $anchor.html("Expand All");
+        $('tr.parent.open span.expander').each(function() {
+          return $(this).collapseExpander();
+        });
+        $anchor.html("Expand all");
       } else if ($anchor.hasClass('collapsed')) {
         $anchor.addClass('expanded').removeClass('collapsed');
-        $('tr.closed.parent span.expander').toggleExpander();
-        $anchor.html("Collapse All");
+        $('tr.parent.closed span.expander').each(function() {
+          return $(this).expandExpander();
+        });
+        $anchor.html("Collapse all");
       }
       return $('table').redrawTableStrip();
     });
@@ -134,31 +157,33 @@
 
       e.preventDefault();
       $anchor = $(this);
+      if (!$('a.expanded').exists()) {
+        $('a.collapsed').trigger('click');
+      }
       if ($anchor.hasClass('all')) {
         $anchor.removeClass('all').addClass('fav');
-        $anchor.html("Show All Projects");
+        $anchor.html("Show all projects");
         $('#collapse-expand-all-projects').hide();
         $('#projects-list tbody tr').each(function() {
           if ($(this).hasClass('fav')) {
-            $(this).removeClass('hide');
-          }
-          if (!$(this).hasClass('fav')) {
-            return $(this).addClass('hide');
+            return $(this).show();
+          } else {
+            return $(this).hide();
           }
         });
-        $('span.expander').off('click.regular');
-        $('span.expander').on('click.favorite', expandFavorite);
+        $('span.expander').off('clickRegular');
+        $('span.expander').on('clickFavorite', expandFavorite);
       } else if ($anchor.hasClass('fav')) {
         $anchor.removeClass('fav').addClass('all');
-        $anchor.html("Only Favorites");
+        $anchor.html("Only favorites");
         $('#collapse-expand-all-projects').show();
         $('#projects-list tbody tr').each(function() {
-          return $(this).removeClass('hide');
+          return $(this).show();
         });
-        $('#collapse-expand-all-projects').html("Collapse All");
+        $('#collapse-expand-all-projects').html("Collapse all");
         $('#collapse-expand-all-projects').removeClass('collapsed').addClass('expanded');
-        $('span.expander').off('click.favorite');
-        $('span.expander').on('click.regular', expandRegular);
+        $('span.expander').off('clickFavorite');
+        $('span.expander').on('clickRegular', expandRegular);
       }
       return $('table').redrawTableStrip();
     });
@@ -173,7 +198,7 @@
       var alt;
 
       alt = 1;
-      return this.find('tbody tr:not(tr.hide)').each(function() {
+      return this.find('tbody tr:visible').each(function() {
         var klass;
 
         $(this).removeClass('even odd');
