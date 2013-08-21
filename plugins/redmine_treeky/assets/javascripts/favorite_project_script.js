@@ -203,7 +203,7 @@
         $anchor.removeClass('all').addClass('fav');
         $anchor.html("Show all projects");
         $('#collapse-expand-all-projects').hide();
-        $('tbody tr').each(function() {
+        $('#projects-list tbody tr').each(function() {
           if ($(this).hasClass('fav')) {
             $(this).show();
           } else {
