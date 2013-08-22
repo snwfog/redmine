@@ -70,6 +70,8 @@ $ ->
     $parentTr = $(this).parents('tr')
     $submitType = $(this).find('input[name="_method"]')
     if $parentTr.hasClass 'fav'
+      # Remove this tr from the view if we are in favorite only view
+      $parentTr.hide() if $('#only-favorite-projects').hasClass('fav')
       # Removing favorite tr class
       $parentTr.removeClass('fav').addClass('unfav')
       $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav')
