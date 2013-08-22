@@ -55,100 +55,124 @@
   </div>
 </fieldset>
 
-
-
 <table class="list" id="projects-list">
   <thead>
   <tr>
     <th></th>
     <th><%= l(:label_project) %></th>
-    <%= content_tag(:th, l(:field_description), class: "custom-field-description", style: favorite_project_extra_column.description ? "" : "display: none") %>
+    <%= content_tag(:th, l(:field_description),
+        class: "custom-field-description",
+        style: favorite_project_extra_column.description ? "" : "display: none") %>
     <% available_custom_fields.each do |f| %>
-      <%= content_tag(:th, f.name, class: "custom-field-#{f.id}", style: favorite_project_field_ids.include?(f.id) ? '' : 'display: none;') %>
+      <%= content_tag(:th, f.name, class: "custom-field-#{f.id}",
+          style: favorite_project_field_ids.include?(f.id) ? '' : 'display: none;') %>
     <% end %>
-    <%= content_tag(:th, l(:field_created_on), class: "custom-field-created_on", style: favorite_project_extra_column.created_on ? "" : "display: none") %>
+    <%= content_tag(:th, l(:field_created_on), class: "custom-field-created_on",
+        style: favorite_project_extra_column.created_on ? "" : "display: none") %>
   </tr>
   </thead>
   <tbody>
   <% ancestors = [] %>
   <% for project in @projects %>
-      <% rowid = "" %>
-      <% classes = " #{User.current.favorite?(project) ? 'fav' : 'unfav'}" %>
-      <% spanicon = "" %>
-      <% openonclick = "" %>
-      <% showchildren = false %>
-      <% project_id_lsd = "%04d" % project.id %>
+    <% rowid = "" %>
+    <% classes = " #{User.current.favorite?(project) ? 'fav' : 'unfav'}" %>
+    <% spanicon = "" %>
+    <% showchildren = false %>
+    <% project_id_lsd = "%04d" % project.id %>
 
-      <% project.children.each do |child| %>
-          <% if @projects.include?(child) %>
-              <% showchildren = true %>
-              <% break %>
-          <% end %>
+    <% project.children.each do |child| %>
+      <% if @projects.include?(child) %>
+        <% showchildren = true %>
+        <% break %>
       <% end %>
-      <% if (!project.children.empty? && showchildren) %>
-          <% classes += " open parent " + cycle("odd", "even") %>
-          <% rowid = "#{project_id_lsd}span" %>
-          <% openonclick = "showHide('#{project_id_lsd}','#{project_id_lsd}span')".html_safe %>
-          <% spanicon = content_tag(:span, "&nbsp; ".html_safe, {:class => "expander"}) %>
-      <% else %>
-          <% classes += " child" %>
-          <% spanicon = content_tag(:span, "&nbsp; ".html_safe, :class => "expander dummy") %>
+    <% end %>
+
+    <% if (!project.children.empty? && showchildren) %>
+      <!--WHEN THERE ARE CHILD PROJECTS-->
+      <% classes += " open parent " + cycle("odd", "even") %>
+      <% rowid = "#{project_id_lsd}span" %>
+      <% spanicon = content_tag(:span, "&nbsp; ".html_safe, {:class => "expander"}) %>
+    <% else %>
+      <!--WHEN THERE ARE NO CHILD PROJECTS-->
+      <% classes += " child" %>
+      <% spanicon = content_tag(:span, "&nbsp; ".html_safe, :class => "expander dummy") %>
+    <% end %>
+
+    <!--WHEN THIS CURRENT PROJET IS A TOP MOST PROJECT-->
+    <% if (project.parent_id == nil) %>
+      <!--CLEAR ANCESTORS ARRAY-->
+      <% ancestors.clear %>
+      <!--SET THIS PROJET TO BE TOP MOST PROJECT-->
+      <% ancestors << project.id %>
+    <% else %>
+      <!--ELSE WHEN THIS CURRENT PROJET IS PART OF ANOTHER PARENT PROJECT-->
+      <!--WHILE THERE ARE ANCESTORS AND THIS PROJET PARENT ID IS NOT IN THE LAST ANCESTOR ARRAY -->
+      <% while (ancestors.any? && !(project.parent_id == ancestors.last)) %>
+        <!--REMOVE THIS ANCESTOR-->
+        <% ancestors.pop %>
       <% end %>
-      <% if (project.parent_id == nil) %>
-          <% ancestors.clear %>
-          <% ancestors << project.id %>
-      <% else %>
-          <% while (ancestors.any? && !(project.parent_id == ancestors.last)) %>
-              <% ancestors.pop %>
-          <% end %>
-          <% classes += " hide" %>
-          <% if (!(ancestors.detect { |pid| pid == project.parent_id })) %>
-              <% prvclasses = "open show parent " + cycle("odd", "even") %>
-              <% ancestors.each do |pid| %>
-                  <% prvclasses += " " + "%04d" % pid %>
-              <% end %>
-              <% project_parent_id_lsd = "%04d" % project.parent.id %>
-              <% openonclick = "showHide('"+project_parent_id_lsd+"','"+project_parent_id_lsd+"span')".html_safe %>
-              <%= content_tag :tr, :id => project_parent_id_lsd + "span", :class => prvclasses do %>
-                <td><%= favorite_tag(project, User.current) %></td>
-                <td class="name" >
-                  <%= content_tag(:span, '', :style => "padding-left: #{(2*((ancestors.length) > 0 ? ancestors.length-1 : 0)).to_s}em;") %>
-                  <%= content_tag(:span, "&nbsp; ".html_safe, :onclick => openonclick, :class => "expander") %>
-                  <%= content_tag(:span, "&nbsp; ".html_safe, :onclick => openonclick, :class => "empty") %>
-                </td>
-                <%= content_tag(:td, 'Project is private.', :onclick => openonclick) %>
-                </span>
-              <% end -%>
-              <% ancestors << project.parent_id %>
-          <% end %>
-          <% ancestors.each do |pid| %>
-              <% classes += " " + "%04d" % pid %>
-          <% end %>
-          <% ancestors << project.id %>
-      <% end %>
-      <%= content_tag :tr, :class => classes, :id => rowid do -%>
+
+      <% classes += " hide" %>
+      <!--IF ANCESTORS DONT CONTAINS THIS PROJET PARENT ID-->
+      <% if (!(ancestors.detect { |pid| pid == project.parent_id })) %>
+        <% prvclasses = "open show parent " + cycle("odd", "even") %>
+        <% ancestors.each do |pid| %>
+          <% prvclasses += " " + "%04d" % pid %>
+        <% end %>
+        <% project_parent_id_lsd = "%04d" % project.parent.id %>
+        <%= content_tag :tr, :id => project_parent_id_lsd + "span", :class => prvclasses do %>
           <td><%= favorite_tag(project, User.current) %></td>
-          <td class="name">
-            <%= content_tag :span, '', :style => "padding-left: #{(2*((ancestors.length) > 0 ? ancestors.length-1 : 0)).to_s}em;" %>
-            <%= spanicon %>
-            <%= project.active? ? link_to(h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => "project") : h(project.name) %>
-            <%= content_tag :span, '&nbsp;'.html_safe, :onclick => openonclick, :class => "empty" %>
+          <td class="name" >
+            <%= content_tag(:span, '', :style => "padding-left: #{(2*((ancestors.length) > 0 ? ancestors.length-1 : 0)).to_s}em;") %>
+            <%= content_tag(:span, "&nbsp; ".html_safe, :class => "expander") %>
+            <%= content_tag(:span, "&nbsp; ".html_safe, :class => "empty") %>
           </td>
+          <%= content_tag(:td, 'Project is private.') %>
+          </span>
+        <% end -%>
+        <% ancestors << project.parent_id %>
+      <% end %>
 
-          <%= content_tag :td, :onclick => openonclick, class: "custom-field-description", style: favorite_project_extra_column.description ? "" : "display: none" do -%><%= textilizable project.short_description, :project => project %><% end -%>
+      <% ancestors.each do |pid| %>
+          <% classes += " " + "%04d" % pid %>
+      <% end %>
+      <% ancestors << project.id %>
+    <% end %>
 
-          <% project.custom_field_values_with_args(available_custom_fields).each do |field| %>
-            <% if !field.value.blank? %>
-              <%= content_tag(:td, h(show_value(field)), align: :center, class: "custom-field-#{field.custom_field.id}", style: favorite_project_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
-            <% else %>
-               <%= content_tag(:td, "", align: :center, class: "custom-field-#{field.custom_field.id}", style: favorite_project_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
-            <% end %>
-          <% end %>
+    <!-- Begin of project TABLE ROW -->
+    <% data_project_level = ancestors.size - 1 %>
+    <% data_project_id = project.id %>
+    <%= content_tag :tr, :class => classes, :id => rowid,
+        data: {project_level: data_project_level, project_id: data_project_id} do -%>
+      <td><%= favorite_tag(project, User.current) %></td>
+      <td class="name">
+        <%= content_tag :span, '', :style => "padding-left: #{(2*((ancestors.length) > 0 ? ancestors.length-1 : 0)).to_s}em;" %>
+        <%= spanicon %>
+        <%= project.active? ? link_to(h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => "project") : h(project.name) %>
+        <%= content_tag :span, '&nbsp;'.html_safe, :class => "empty" %>
+      </td>
 
-          <%= content_tag(:td, h(format_date(project.created_on)), align: :center,
-            class: "custom-field-created_on", style: favorite_project_extra_column.created_on ? '' : 'display: none;') %>
-
+      <%= content_tag :td, class: "custom-field-description",
+          style: favorite_project_extra_column.description ? "" : "display: none" do -%>
+        <%= textilizable project.short_description, :project => project %>
       <% end -%>
+
+      <% project.custom_field_values_with_args(available_custom_fields).each do |field| %>
+        <% if !field.value.blank? %>
+          <%= content_tag(:td, h(show_value(field)), align: :center,
+              class: "custom-field-#{field.custom_field.id}",
+              style: favorite_project_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
+        <% else %>
+          <%= content_tag(:td, "", align: :center, class: "custom-field-#{field.custom_field.id}",
+              style: favorite_project_field_ids.include?(field.custom_field.id) ? '' : 'display: none;') %>
+        <% end %>
+      <% end %>
+
+      <%= content_tag(:td, h(format_date(project.created_on)), align: :center,
+          class: "custom-field-created_on",
+          style: favorite_project_extra_column.created_on ? '' : 'display: none;') %>
+    <% end -%>
+    <!-- End of project TABLE ROW -->
   <% end %>
   </tbody>
 </table>

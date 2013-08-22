@@ -28,27 +28,27 @@ $ ->
   $.fn.collapseExpander = (options) ->
     defaults =
       favorite: false
+      bubbling: false
     settings = $.extend({}, defaults, options)
 
     $tr = this.parents('tr')
     $tr.removeClass('open').addClass('closed')
     if $tr.attr('id')
-      projectId = $tr.attr('id').match(/[\d]{4}/)
+      projectId = $tr.attr('id').match(/[\d]{4}/)[0]
       # Select all children expander to collapse their projects
-      selector = "tr.open.parent.#{projectId}"
       fav = if settings.favorite then ".fav" else ""
-      $("#{selector}#{fav} span.expander").each ->
-        $(this).collapseExpander(options)
+      if settings.bubbling
+        selector = "tr.open.parent.#{projectId}"
+        $("#{selector}#{fav} span.expander").each ->
+          $(this).collapseExpander(options)
       $("tr.child.#{projectId}#{fav}").hide()
-      $parentProjects = $("tr.parent.closed.#{projectId}#{fav}")
-      if ($parentProjects.exists())
-        $parentProjects.each ->
-          $(this).hide()
+      $("tr.parent.#{projectId}#{fav}").hide()
 
   $.fn.expandExpander = (options) ->
 
     defaults =
       favorite: false
+      bubbling: false
     settings = $.extend({}, defaults, options)
 
     $tr = this.parents('tr')
@@ -57,13 +57,17 @@ $ ->
       projectId = $tr.attr('id').match(/[\d]{4}/)
       # Select all children expander to collapse their projects
       fav = if settings.favorite then ".fav" else ""
-      $("tr.closed.parent.#{projectId}#{fav} span.expander").each ->
-        $(this).expandExpander(options)
-      $("tr.child.#{projectId}#{fav}").show()
-      $parentProjects = $("tr.parent.open.#{projectId}#{fav}")
-      if ($parentProjects.exists())
-        $parentProjects.each ->
-          $(this).show()
+      parentLevel = $tr.level()
+      if settings.bubbling
+        $("tr.closed.parent.#{projectId}#{fav} span.expander").each ->
+          $(this).expandExpander(options)
+        $("tr.parent.#{projectId}#{fav}").show()
+      else
+        # Get only parent first sub level projects and show them
+        parentFirstSubLevelProject = $.grep($("tr.#{projectId}#{fav}"), (el, index) ->
+          $(el).level() == parentLevel + 1)
+        $.each(parentFirstSubLevelProject, (index, el) ->
+          $(el).show())
 
   # Handles success/failure of fav/unfav projects
   $('tbody tr form').on('ajax:success', (evt, data, status, xhr) ->
@@ -101,6 +105,10 @@ $ ->
   ).bind('ajax:failure', (evt, data, status, xhr) ->
     console.log "Something went horribly wrong. And it's all Charles' faults"
   )
+
+  $.fn.level = ->
+    attr = this.attr("class").match(/[\d]{4}/g)
+    level = if attr? then attr.length else 0
 
   $.fn.fav = ->
     this.removeClass('unfav').addClass('fav')

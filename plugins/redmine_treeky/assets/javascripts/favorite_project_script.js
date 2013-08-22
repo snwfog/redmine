@@ -31,35 +31,34 @@
       return $('table').redrawTableStrip();
     };
     $.fn.collapseExpander = function(options) {
-      var $parentProjects, $tr, defaults, fav, projectId, selector, settings;
+      var $tr, defaults, fav, projectId, selector, settings;
 
       defaults = {
-        favorite: false
+        favorite: false,
+        bubbling: false
       };
       settings = $.extend({}, defaults, options);
       $tr = this.parents('tr');
       $tr.removeClass('open').addClass('closed');
       if ($tr.attr('id')) {
-        projectId = $tr.attr('id').match(/[\d]{4}/);
-        selector = "tr.open.parent." + projectId;
+        projectId = $tr.attr('id').match(/[\d]{4}/)[0];
         fav = settings.favorite ? ".fav" : "";
-        $("" + selector + fav + " span.expander").each(function() {
-          return $(this).collapseExpander(options);
-        });
-        $("tr.child." + projectId + fav).hide();
-        $parentProjects = $("tr.parent.closed." + projectId + fav);
-        if ($parentProjects.exists()) {
-          return $parentProjects.each(function() {
-            return $(this).hide();
+        if (settings.bubbling) {
+          selector = "tr.open.parent." + projectId;
+          $("" + selector + fav + " span.expander").each(function() {
+            return $(this).collapseExpander(options);
           });
         }
+        $("tr.child." + projectId + fav).hide();
+        return $("tr.parent." + projectId + fav).hide();
       }
     };
     $.fn.expandExpander = function(options) {
-      var $parentProjects, $tr, defaults, fav, projectId, settings;
+      var $tr, defaults, fav, parentFirstSubLevelProject, parentLevel, projectId, settings;
 
       defaults = {
-        favorite: false
+        favorite: false,
+        bubbling: false
       };
       settings = $.extend({}, defaults, options);
       $tr = this.parents('tr');
@@ -67,14 +66,18 @@
       if ($tr.attr('id')) {
         projectId = $tr.attr('id').match(/[\d]{4}/);
         fav = settings.favorite ? ".fav" : "";
-        $("tr.closed.parent." + projectId + fav + " span.expander").each(function() {
-          return $(this).expandExpander(options);
-        });
-        $("tr.child." + projectId + fav).show();
-        $parentProjects = $("tr.parent.open." + projectId + fav);
-        if ($parentProjects.exists()) {
-          return $parentProjects.each(function() {
-            return $(this).show();
+        parentLevel = $tr.level();
+        if (settings.bubbling) {
+          $("tr.closed.parent." + projectId + fav + " span.expander").each(function() {
+            return $(this).expandExpander(options);
+          });
+          return $("tr.parent." + projectId + fav).show();
+        } else {
+          parentFirstSubLevelProject = $.grep($("tr." + projectId + fav), function(el, index) {
+            return $(el).level() === parentLevel + 1;
+          });
+          return $.each(parentFirstSubLevelProject, function(index, el) {
+            return $(el).show();
           });
         }
       }
@@ -118,6 +121,12 @@
     }).bind('ajax:failure', function(evt, data, status, xhr) {
       return console.log("Something went horribly wrong. And it's all Charles' faults");
     });
+    $.fn.level = function() {
+      var attr, level;
+
+      attr = this.attr("class").match(/[\d]{4}/g);
+      return level = attr != null ? attr.length : 0;
+    };
     $.fn.fav = function() {
       return this.removeClass('unfav').addClass('fav');
     };
