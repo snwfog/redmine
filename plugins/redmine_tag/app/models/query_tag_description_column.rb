@@ -4,7 +4,7 @@ class QueryTagDescriptionColumn < QueryColumn
   end
 
   def caption
-    name.to_s + "TAG_DESCRIPTION_PLACEHOLDER"
+    l(name.to_s)
   end
 
   #def value(object)

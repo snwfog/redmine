@@ -5,3 +5,6 @@ en:
   tag_journal_changed: "%{label} updated from %{old} to %{new}"
   tag_journal_deleted: "%{label} deleted %{old}"
   tag_journal_added: "%{label} added %{new}"
+
+  field_tag_descriptors_description: Tag Description
+  tag_description: Tag Description
