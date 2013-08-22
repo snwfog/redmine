@@ -80,13 +80,20 @@
       }
     };
     $('tbody tr form').on('ajax:success', function(evt, data, status, xhr) {
-      var $parentTr, $submitType, attr, level;
+      var $parentProjectTr, $parentTr, $submitType, attr, level, projectId;
 
       $parentTr = $(this).parents('tr');
       $submitType = $(this).find('input[name="_method"]');
       if ($parentTr.hasClass('fav')) {
         if ($('#only-favorite-projects').hasClass('fav')) {
           $parentTr.hide();
+          $parentProjectTr = $parentTr.parentProjectTr();
+          if ($parentProjectTr != null) {
+            projectId = $parentProjectTr.projectId();
+            if (!($("tr." + projectId + ":visible").exists())) {
+              $parentProjectTr.find('span.expander').off('clickFavorite');
+            }
+          }
         }
         $parentTr.removeClass('fav').addClass('unfav');
         $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav');
@@ -131,6 +138,19 @@
         return true;
       }
       return false;
+    };
+    $.fn.parentProjectTr = function() {
+      var closestParentId, parentIds;
+
+      parentIds = this.attr('class').match(/[\d]{4}/g);
+      if (parentIds == null) {
+        return void 0;
+      }
+      closestParentId = parentIds.reverse()[0];
+      return $("tr#" + closestParentId + "span");
+    };
+    $.fn.projectId = function() {
+      return this.attr('id').match(/[\d]{4}/)[0];
     };
     $.fn.tagChildren = function(level) {
       var els, projectId;
