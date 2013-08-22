@@ -15,8 +15,10 @@ module RedmineTag
       module InstanceMethods
         def statement_with_tags
           sql_statement = statement_without_tags
-          if sql_statement.split('AND').count >= 2
-            sql_statement = sql_statement.split('AND').join(') AND (')
+          unless filters.select{|s| s =~ /tag_descriptors_description/}.empty?
+            if sql_statement.split('AND').count >= 2
+              sql_statement = sql_statement.split('AND').join(') AND (')
+            end
           end
           sql_statement
         end
