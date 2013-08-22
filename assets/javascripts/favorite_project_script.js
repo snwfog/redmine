@@ -85,6 +85,9 @@
       $parentTr = $(this).parents('tr');
       $submitType = $(this).find('input[name="_method"]');
       if ($parentTr.hasClass('fav')) {
+        if ($('#only-favorite-projects').hasClass('fav')) {
+          $parentTr.hide();
+        }
         $parentTr.removeClass('fav').addClass('unfav');
         $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav');
         if ($submitType != null) {
