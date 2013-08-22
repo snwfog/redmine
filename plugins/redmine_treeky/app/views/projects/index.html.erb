@@ -25,8 +25,9 @@
               <%= form_tag('/custom_label_filter/update_custom_fields',
                            class: 'project-custom-label-filter', remote: true) do %>
                 <% available_custom_fields.each do |field| %>
-                  <%= check_box :project_custom_field, field.id, { data: { field: field.id }, checked: favorite_project_field_ids.include?(field.id) } %>
-                  <%= label_tag :project_custom_field, field.name %>
+                  <%= check_box :project_custom_field, field.id, { data: { field: field.id },
+                    checked: favorite_project_field_ids.include?(field.id) } %>
+                  <%= label_tag "project_custom_field_#{field.id}", field.name %>
                   <br />
                 <% end %>
               <% end %>
