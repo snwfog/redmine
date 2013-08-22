@@ -8,10 +8,19 @@ module RedmineTag
         base.extend(ClassMethods)
 
         base.class_eval do
+          alias_method_chain :statement, :tags
         end
       end
 
       module InstanceMethods
+        def statement_with_tags
+          sql_statement = statement_without_tags
+          if sql_statement.split('AND').count >= 2
+            sql_statement = sql_statement.split('AND').join(') AND (')
+          end
+          sql_statement
+        end
+
         def sql_for_tag_descriptors_description_field(field, operator, value)
           db_table = TagDescriptor.table_name
           db_field = 'id' # tag_descriptor.id
