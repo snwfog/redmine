@@ -14,7 +14,7 @@ module RedmineTag
           #  .joins('LEFT OUTER JOIN tag_descriptors ON tags.tag_descriptor_id = tag_descriptors.id') }
           default_scope { includes(tags: [:tag_descriptor]) }
 
-          has_many :tags
+          has_many :tags, dependent: :destroy
           has_many :tag_descriptors, through: :tags
 
           safe_attributes 'tags',
@@ -29,9 +29,9 @@ module RedmineTag
       end
 
       module InstanceMethods
-        def build_tag_from_param
-          @params_tags ||= []
-          return if @params_tags.empty?
+        def build_tag_from_param(tags_hash)
+          @params_tags = tags_hash || []
+          return @params_tags if @params_tags.empty?
 
           Tag.transaction do
             self.tags.destroy_all
@@ -53,11 +53,11 @@ module RedmineTag
         end
 
         def assign_attributes_with_tags_removed(new_attributes, *args)
-          @params_tags = unless new_attributes[:tags].nil?
-            new_attributes.delete(:tags)
+          unless new_attributes[:tags].nil?
+            tags = build_tag_from_param(new_attributes.delete(:tags))
+            self.tags << tags unless tags.empty?
           end
 
-          self.tags << build_tag_from_param
           assign_attributes_without_tags_removed(new_attributes, *args)
         end
 

@@ -10,30 +10,29 @@ module RedmineTag
         base.class_eval do
           unloadable
 
-          #alias_method_chain :build_new_issue_from_params, :tags
-          # alias_method_chain: :update_issue_from_params :tags
-          #alias_method_chain :update, :tags
+          alias_method_chain :retrieve_previous_and_next_issue_ids, :tags
         end
       end
 
       module InstanceMethods
-        #def update_with_tags
-        #  update_without_tags
-        #  build_tag_from_param
-        #end
-
-        #private
-
-        #def build_new_issue_from_params_with_tags
-          # build_new_issue_from_params
-          # @issue.tags = build_tag(marshall_tag)
-        #end
-
-        #def update_issue_from_params_with_tags
-        #  puts "HEllo world"
-        #end
-
-
+        def retrieve_previous_and_next_issue_ids_with_tags
+          retrieve_query_from_session
+          if @query
+            sort_init(@query.sort_criteria.empty? ? [['id', 'desc']] : @query.sort_criteria)
+            sort_update(@query.sortable_columns, 'issues_index_sort')
+            limit = 500
+            # Include the tags and tag_descriptor in the query
+            issue_ids = @query.issue_ids(:order => sort_clause, :limit => (limit + 1), :include => [:assigned_to, :tracker, :priority, :category, :fixed_version, tags: [:tag_descriptor]]).uniq
+            if (idx = issue_ids.index(@issue.id)) && idx < limit
+              if issue_ids.size < 500
+                @issue_position = idx + 1
+                @issue_count = issue_ids.size
+              end
+              @prev_issue_id = issue_ids[idx - 1] if idx > 0
+              @next_issue_id = issue_ids[idx + 1] if idx < (issue_ids.size - 1)
+            end
+          end
+        end
       end
 
       module ClassMethods

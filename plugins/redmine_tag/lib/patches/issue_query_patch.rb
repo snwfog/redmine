@@ -7,11 +7,16 @@ module RedmineTag
         base.send(:include, InstanceMethods)
         base.extend(ClassMethods)
 
-        base.available_columns << QueryColumn.new(:tag_severity,
-          sortable: "#{Tag.table_name}.severity", groupable: true)
-        base.available_columns << QueryColumn.new(:tag_description,
-          sortable: "#{TagDescriptor.table_name}.description", groupable: true)
+        cols =
+        [
+          QueryTagDescriptionColumn.new(
+            :tag_description,
+            sortable: "#{TagDescriptor.table_name}.description",
+            groupable: false
+          )
+        ]
 
+        base.available_columns |= cols
         base.class_eval do
           alias_method_chain :initialize_available_filters, :tags
         end
@@ -21,11 +26,10 @@ module RedmineTag
         def initialize_available_filters_with_tags
           initialize_available_filters_without_tags
 
-          add_available_filter("tag_severity", type: :integer)
-          add_available_filter("tag_descriptor_id", type: :list_optional,
-            values: TagDescriptor.all.map {|td| [td.description, td.id.to_s]})
+          tag_descriptor = TagDescriptor.all.map
+          add_available_filter("tag_descriptors_description", type: :list_optional,
+            values: TagDescriptor.order('description ASC').all.map {|td| [td.description, td.id.to_s]})
         end
-
       end
 
       module ClassMethods

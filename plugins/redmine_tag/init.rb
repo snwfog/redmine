@@ -26,6 +26,9 @@ Redmine::Plugin.register :redmine_tag do
   author_url 'http://charlescy.com'
 
   menu :admin_menu, :tags, { controller: :tag_descriptors, action: :index }, caption: :Tags, after: :custom_fields
+  #permission :create_tags, tag_descriptors: :create
+  #permission :destroy_tags, tag_descriptors: :destroy
+  #permission :update_tags, tag_descriptors: :update
 end
 
 class RedmineTagsViewListener < Redmine::Hook::ViewListener

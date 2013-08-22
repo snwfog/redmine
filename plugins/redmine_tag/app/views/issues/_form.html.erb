@@ -38,7 +38,7 @@
 <% if @issue.safe_attribute? 'tags' %>
   <p>
     <%= f.label_for_field :tags, required: false %>
-    <%= f.text_field :tags, value: @issue.tags.map(&:to_s).join(", ") %>
+    <%= f.text_field :tags, value: @issue.tags.map(&:to_s).join(", "), autocomplete: :off %>
   </p>
 <% end %>
 
