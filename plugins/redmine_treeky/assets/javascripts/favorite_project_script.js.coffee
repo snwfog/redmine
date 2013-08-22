@@ -71,7 +71,14 @@ $ ->
     $submitType = $(this).find('input[name="_method"]')
     if $parentTr.hasClass 'fav'
       # Remove this tr from the view if we are in favorite only view
-      $parentTr.hide() if $('#only-favorite-projects').hasClass('fav')
+      if $('#only-favorite-projects').hasClass('fav')
+        $parentTr.hide()
+        # Check if this tr has showing siblings
+        $parentProjectTr = $parentTr.parentProjectTr()
+        if $parentProjectTr?
+          projectId = $parentProjectTr.projectId()
+          unless ($("tr.#{projectId}:visible").exists())
+            $parentProjectTr.find('span.expander').off('clickFavorite')
       # Removing favorite tr class
       $parentTr.removeClass('fav').addClass('unfav')
       $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav')
@@ -111,6 +118,16 @@ $ ->
     return true if this.hasClass 'parent'
     return true if this.parents('tr').hasClass 'parent'
     return false
+
+  $.fn.parentProjectTr = ->
+    parentIds = this.attr('class').match(/[\d]{4}/g)
+    return undefined unless parentIds?
+    closestParentId = parentIds.reverse()[0]
+    return $("tr##{closestParentId}span")
+
+  $.fn.projectId = ->
+    return this.attr('id').match(/[\d]{4}/)[0]
+
 
   $.fn.tagChildren = (level) ->
     projectId = this.attr('id').match(/[\d]{4}/)[0]
@@ -174,7 +191,8 @@ $ ->
           $(this).addClass('open').removeClass('closed')
           # Check if there are favorites child project
           projectId = $(this).attr('id').match(/[\d]{4}/)
-          $(this).find('span.expander').off('clickFavorite') unless $("tr.fav.#{projectId}").exists()
+          unless $("tr.fav.#{projectId}").exists()
+            $(this).find('span.expander').off('clickFavorite')
     else if ($anchor.hasClass('fav'))
       # Toggle event listener
       $('span.expander').off('clickFavorite')
