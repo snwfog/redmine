@@ -3,6 +3,7 @@ class TagDescriptorsController < ApplicationController
   before_filter :get_tag, only: [:edit, :destroy, :update]
 
   def index
+    # TODO: This part needs to be refactored into models
     @tag_count = TagDescriptor.joins("LEFT JOIN tags ON tags.tag_descriptor_id = tag_descriptors.id").group('tag_descriptors.id').order("count_issue_id DESC").count("issue_id")
     @tag_count = @tag_count.inject({}) { |t, pair| t[pair[0]] = pair[1]; t }
     @tags = TagDescriptor.all.inject([]) do |h, tag|
