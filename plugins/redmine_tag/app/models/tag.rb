@@ -7,6 +7,7 @@ class Tag < ActiveRecord::Base
   belongs_to :tag_descriptor
 
   validates :tag_descriptor_id, uniqueness: { scope: [:issue_id, :severity] }
+  validates :tag_descriptor_id, presence: true
 
   def description
     self.tag_descriptor.description
