@@ -1,4 +1,10 @@
 # Redmine Treeky
+## Installation Guide
+
+```
+RAILS_ENV=production [bundle execute] rake redmine:plugins:assets
+RAILS_ENV=production [bundle execute] rake redmine:plugins:migrate
+```
 
 ## About
 Redmine Treeky is a plugin that helps you to manage all your projects.
