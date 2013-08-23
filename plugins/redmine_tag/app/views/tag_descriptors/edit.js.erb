@@ -1,12 +1,13 @@
 $li = $("li#<%= @tag.id %>.tags")
 $deleteBtn = $li.children('a.remove');
 $anchor = $li.children('a[data-remote]').hide();
-$deleteBtn.before("<%= j render partial: 'form', :locals => {:tag => @tag } %>");
-$li.find('form').on("ajax:success", function(e, data, status, xhr) {
-  var tagDescriptor = data.tag_descriptor
-
+$form = $("<%= j render partial: 'form', :locals => {:tag => @tag } %>");
+$deleteBtn.before($form);
+$form.on("ajax:success", function(e, data, status, xhr) {
+  $li = $("li#" + data.tag_descriptor.id + ".tags");
   $li.children('form').remove();
-  $anchor.html(tagDescriptor.description);
+  $anchor = $li.children('a[data-remote]');
+  $anchor.html(data.tag_descriptor.description);
   $anchor.show();
 }).bind("ajax:error", function(e, data, status, xhr) {
   err = JSON.parse(data.responseText);
