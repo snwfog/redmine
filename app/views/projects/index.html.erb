@@ -142,13 +142,14 @@
     <!-- Begin of project TABLE ROW -->
     <% data_project_level = ancestors.size - 1 %>
     <% data_project_id = project.id %>
-    <%= content_tag :tr, :class => classes, :id => rowid,
-        data: {project_level: data_project_level, project_id: data_project_id} do -%>
+    <%= content_tag :tr, :class => classes, :id => rowid do -%>
       <td><%= favorite_tag(project, User.current) %></td>
       <td class="name">
         <%= content_tag :span, '', :style => "padding-left: #{(2*((ancestors.length) > 0 ? ancestors.length-1 : 0)).to_s}em;" %>
         <%= spanicon %>
-        <%= project.active? ? link_to(h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => "project") : h(project.name) %>
+        <%= project.active? ? link_to(h(project.name),
+            {:controller => 'projects', :action => 'show', :id => project},
+            :class => "project") : h(project.name) %>
         <%= content_tag :span, '&nbsp;'.html_safe, :class => "empty" %>
       </td>
 

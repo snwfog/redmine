@@ -34,7 +34,7 @@ $ ->
     $tr = this.parents('tr')
     $tr.removeClass('open').addClass('closed')
     if $tr.attr('id')
-      projectId = $tr.attr('id').match(/[\d]{4}/)[0]
+      projectId = $tr.attr('id').match(/[\d]+/)[0]
       # Select all children expander to collapse their projects
       fav = if settings.favorite then ".fav" else ""
       if settings.bubbling
@@ -54,7 +54,7 @@ $ ->
     $tr = this.parents('tr')
     $tr.removeClass('closed').addClass('open')
     if $tr.attr('id')
-      projectId = $tr.attr('id').match(/[\d]{4}/)
+      projectId = $tr.attr('id').match(/[\d]/)
       # Select all children expander to collapse their projects
       fav = if settings.favorite then ".fav" else ""
       parentLevel = $tr.level()
@@ -89,7 +89,7 @@ $ ->
       $submitType.attr('value', 'post') if $submitType?
       if $(this).parents("tr").hasClass('parent')
         # Figure out this parent level
-        attr = $(this).parents("tr").attr("class").match(/[\d]{4}/g)
+        attr = $(this).parents("tr").attr("class").match(/[\d]+/g)
         level = if attr? then attr.length else 0
         $(this).parents("tr").tagChildren(level)
     else if $parentTr.hasClass 'unfav'
@@ -107,7 +107,7 @@ $ ->
   )
 
   $.fn.level = ->
-    attr = this.attr("class").match(/[\d]{4}/g)
+    attr = this.attr("class").match(/[\d]+/g)
     level = if attr? then attr.length else 0
 
   $.fn.fav = ->
@@ -128,19 +128,19 @@ $ ->
     return false
 
   $.fn.parentProjectTr = ->
-    parentIds = this.attr('class').match(/[\d]{4}/g)
+    parentIds = this.attr('class').match(/[\d]+/g)
     return undefined unless parentIds?
     closestParentId = parentIds.reverse()[0]
     return $("tr##{closestParentId}span")
 
   $.fn.projectId = ->
-    return this.attr('id').match(/[\d]{4}/)[0]
+    return this.attr('id').match(/[\d]+/)[0]
 
 
   $.fn.tagChildren = (level) ->
-    projectId = this.attr('id').match(/[\d]{4}/)[0]
+    projectId = this.attr('id').match(/[\d]+/)[0]
     els = $.grep $("tr.fav.#{projectId}"), (el) ->
-      klazz = $(el).attr("class").match(/[\d]{4}/g)
+      klazz = $(el).attr("class").match(/[\d]+/g)
       return klazz? && klazz.length == (level + 1)
     $.each els, (index, el) ->
       $(el).find('form').submit() if $(this).isFav()
@@ -148,7 +148,7 @@ $ ->
   $.fn.tagParent = ->
     $el = this
     klazz = $el.parents('tr').attr('class')
-    parents = klazz.match /[\d]{4}/g
+    parents = klazz.match /[\d]+/g
     if parents
       # Find next parent that is unfavorited
       closestUnfavParents = $.grep parents.reverse(), (parentId, index) ->
@@ -198,7 +198,7 @@ $ ->
         if $(this).hasClass 'parent'
           $(this).addClass('open').removeClass('closed')
           # Check if there are favorites child project
-          projectId = $(this).attr('id').match(/[\d]{4}/)
+          projectId = $(this).attr('id').match(/[\d]+/)
           unless $("tr.fav.#{projectId}").exists()
             $(this).find('span.expander').off('clickFavorite')
     else if ($anchor.hasClass('fav'))

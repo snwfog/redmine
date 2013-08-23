@@ -41,7 +41,7 @@
       $tr = this.parents('tr');
       $tr.removeClass('open').addClass('closed');
       if ($tr.attr('id')) {
-        projectId = $tr.attr('id').match(/[\d]{4}/)[0];
+        projectId = $tr.attr('id').match(/[\d]+/)[0];
         fav = settings.favorite ? ".fav" : "";
         if (settings.bubbling) {
           selector = "tr.open.parent." + projectId;
@@ -64,7 +64,7 @@
       $tr = this.parents('tr');
       $tr.removeClass('closed').addClass('open');
       if ($tr.attr('id')) {
-        projectId = $tr.attr('id').match(/[\d]{4}/);
+        projectId = $tr.attr('id').match(/[\d]/);
         fav = settings.favorite ? ".fav" : "";
         parentLevel = $tr.level();
         if (settings.bubbling) {
@@ -104,7 +104,7 @@
           $submitType.attr('value', 'post');
         }
         if ($(this).parents("tr").hasClass('parent')) {
-          attr = $(this).parents("tr").attr("class").match(/[\d]{4}/g);
+          attr = $(this).parents("tr").attr("class").match(/[\d]+/g);
           level = attr != null ? attr.length : 0;
           return $(this).parents("tr").tagChildren(level);
         }
@@ -124,7 +124,7 @@
     $.fn.level = function() {
       var attr, level;
 
-      attr = this.attr("class").match(/[\d]{4}/g);
+      attr = this.attr("class").match(/[\d]+/g);
       return level = attr != null ? attr.length : 0;
     };
     $.fn.fav = function() {
@@ -151,7 +151,7 @@
     $.fn.parentProjectTr = function() {
       var closestParentId, parentIds;
 
-      parentIds = this.attr('class').match(/[\d]{4}/g);
+      parentIds = this.attr('class').match(/[\d]+/g);
       if (parentIds == null) {
         return void 0;
       }
@@ -159,16 +159,16 @@
       return $("tr#" + closestParentId + "span");
     };
     $.fn.projectId = function() {
-      return this.attr('id').match(/[\d]{4}/)[0];
+      return this.attr('id').match(/[\d]+/)[0];
     };
     $.fn.tagChildren = function(level) {
       var els, projectId;
 
-      projectId = this.attr('id').match(/[\d]{4}/)[0];
+      projectId = this.attr('id').match(/[\d]+/)[0];
       els = $.grep($("tr.fav." + projectId), function(el) {
         var klazz;
 
-        klazz = $(el).attr("class").match(/[\d]{4}/g);
+        klazz = $(el).attr("class").match(/[\d]+/g);
         return (klazz != null) && klazz.length === (level + 1);
       });
       return $.each(els, function(index, el) {
@@ -182,7 +182,7 @@
 
       $el = this;
       klazz = $el.parents('tr').attr('class');
-      parents = klazz.match(/[\d]{4}/g);
+      parents = klazz.match(/[\d]+/g);
       if (parents) {
         closestUnfavParents = $.grep(parents.reverse(), function(parentId, index) {
           $el = $("tr.unfav#" + parentId + "span");
@@ -251,7 +251,7 @@
           }
           if ($(this).hasClass('parent')) {
             $(this).addClass('open').removeClass('closed');
-            projectId = $(this).attr('id').match(/[\d]{4}/);
+            projectId = $(this).attr('id').match(/[\d]+/);
             if (!$("tr.fav." + projectId).exists()) {
               return $(this).find('span.expander').off('clickFavorite');
             }
