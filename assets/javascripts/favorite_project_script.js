@@ -31,7 +31,7 @@
       return $('table').redrawTableStrip();
     };
     $.fn.collapseExpander = function(options) {
-      var $tr, defaults, fav, projectId, selector, settings;
+      var $tr, defaults, fav, projectId, settings;
 
       defaults = {
         favorite: false,
@@ -40,21 +40,16 @@
       settings = $.extend({}, defaults, options);
       $tr = this.parents('tr');
       $tr.removeClass('open').addClass('closed');
-      if ($tr.attr('id')) {
-        projectId = $tr.attr('id').match(/[\d]+/)[0];
+      if ($tr.isParent()) {
+        projectId = $tr.getProjectId();
         fav = settings.favorite ? ".fav" : "";
-        if (settings.bubbling) {
-          selector = "tr.open.parent." + projectId;
-          $("" + selector + fav + " span.expander").each(function() {
-            return $(this).collapseExpander(options);
-          });
+        if (!settings.bubbling) {
+          return $("tr:visible." + projectId + fav).hide();
         }
-        $("tr.child." + projectId + fav).hide();
-        return $("tr.parent." + projectId + fav).hide();
       }
     };
     $.fn.expandExpander = function(options) {
-      var $tr, defaults, fav, parentFirstSubLevelProject, parentLevel, projectId, settings;
+      var $tr, defaults, fav, parentLevel, projectId, settings;
 
       defaults = {
         favorite: false,
@@ -62,43 +57,35 @@
       };
       settings = $.extend({}, defaults, options);
       $tr = this.parents('tr');
-      $tr.removeClass('closed').addClass('open');
-      if ($tr.attr('id')) {
-        projectId = $tr.attr('id').match(/[\d]/);
-        fav = settings.favorite ? ".fav" : "";
-        parentLevel = $tr.level();
-        if (settings.bubbling) {
-          $("tr.closed.parent." + projectId + fav + " span.expander").each(function() {
-            return $(this).expandExpander(options);
-          });
-          return $("tr.parent." + projectId + fav).show();
-        } else {
-          parentFirstSubLevelProject = $.grep($("tr." + projectId + fav), function(el, index) {
-            return $(el).level() === parentLevel + 1;
-          });
-          return $.each(parentFirstSubLevelProject, function(index, el) {
-            return $(el).show();
-          });
-        }
+      if (!$tr.hasClass('open')) {
+        $tr.removeClass('closed').addClass('open');
       }
+      projectId = $tr.getProjectId();
+      parentLevel = $tr.getProjectLevel();
+      fav = settings.favorite ? ".fav" : "";
+      return $("tr:hidden." + projectId + fav + "[data-project-level=" + (parentLevel + 1) + "]").each(function() {
+        if ($(this).isParent() && $(this).hasClass('open')) {
+          $(this).find('span.expander').expandExpander(options);
+        }
+        return $(this).show();
+      });
     };
     $('tbody tr form').on('ajax:success', function(evt, data, status, xhr) {
-      var $parentProjectTr, $parentTr, $submitType, attr, level, projectId;
+      var $parentProjectTr, $submitType, $tr, attr, level;
 
-      $parentTr = $(this).parents('tr');
+      $tr = $(this).parents('tr');
       $submitType = $(this).find('input[name="_method"]');
-      if ($parentTr.hasClass('fav')) {
+      if ($tr.hasClass('fav')) {
         if ($('#only-favorite-projects').hasClass('fav')) {
-          $parentTr.hide();
-          $parentProjectTr = $parentTr.parentProjectTr();
-          if ($parentProjectTr != null) {
-            projectId = $parentProjectTr.projectId();
-            if (!($("tr." + projectId + ":visible").exists())) {
-              $parentProjectTr.find('span.expander').off('clickFavorite');
-            }
+          $tr.hide();
+          if ($tr.hasParentProject()) {
+            $parentProjectTr = $tr.parentProjectTr();
+          }
+          if (!$parentProjectTr.hasVisibleChildProject(true)) {
+            $parentProjectTr.find('span.expander').off('clickFavorite').addClass('dummy');
           }
         }
-        $parentTr.removeClass('fav').addClass('unfav');
+        $tr.removeClass('fav').addClass('unfav');
         $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav');
         if ($submitType != null) {
           $submitType.attr('value', 'post');
@@ -108,8 +95,8 @@
           level = attr != null ? attr.length : 0;
           return $(this).parents("tr").tagChildren(level);
         }
-      } else if ($parentTr.hasClass('unfav')) {
-        $parentTr.removeClass('unfav').addClass('fav');
+      } else if ($tr.hasClass('unfav')) {
+        $tr.removeClass('unfav').addClass('fav');
         if (!$submitType.exists()) {
           $submitType = $('<input>').attr('name', '_method').attr('type', 'hidden');
           $(this).find('div').prepend($submitType);
@@ -121,11 +108,8 @@
     }).bind('ajax:failure', function(evt, data, status, xhr) {
       return console.log("Something went horribly wrong. And it's all Charles' faults");
     });
-    $.fn.level = function() {
-      var attr, level;
-
-      attr = this.attr("class").match(/[\d]+/g);
-      return level = attr != null ? attr.length : 0;
+    $.fn.getProjectLevel = function() {
+      return this.data('project-level');
     };
     $.fn.fav = function() {
       return this.removeClass('unfav').addClass('fav');
@@ -148,6 +132,9 @@
       }
       return false;
     };
+    $.fn.hasParentProject = function() {
+      return this.data('project-level') > 0;
+    };
     $.fn.parentProjectTr = function() {
       var closestParentId, parentIds;
 
@@ -158,8 +145,8 @@
       closestParentId = parentIds.reverse()[0];
       return $("tr#" + closestParentId + "span");
     };
-    $.fn.projectId = function() {
-      return this.attr('id').match(/[\d]+/)[0];
+    $.fn.getProjectId = function() {
+      return this.data('project-id');
     };
     $.fn.tagChildren = function(level) {
       var els, projectId;
@@ -242,8 +229,6 @@
         $anchor.html("Show all projects");
         $('#collapse-expand-all-projects').hide();
         $('#projects-list tbody tr').each(function() {
-          var projectId;
-
           if ($(this).hasClass('fav')) {
             $(this).show();
           } else {
@@ -251,9 +236,8 @@
           }
           if ($(this).hasClass('parent')) {
             $(this).addClass('open').removeClass('closed');
-            projectId = $(this).attr('id').match(/[\d]+/);
-            if (!$("tr.fav." + projectId).exists()) {
-              return $(this).find('span.expander').off('clickFavorite');
+            if (!$(this).hasVisibleChildProject(true)) {
+              return $(this).find('span.expander').off('clickFavorite').addClass('dummy');
             }
           }
         });
@@ -263,10 +247,11 @@
         $anchor.removeClass('fav').addClass('all');
         $anchor.html("Only favorites");
         $('#collapse-expand-all-projects').show();
-        $('tbody tr').each(function() {
+        $('#projects-list tbody tr').each(function() {
           $(this).show();
-          if ($(this).hasClass('parent')) {
-            return $(this).addClass('open').removeClass('closed');
+          if ($(this).isParent()) {
+            $(this).addClass('open').removeClass('closed');
+            return $(this).find('span.expander').removeClass('dummy');
           }
         });
         $('#collapse-expand-all-projects').html("Collapse all");
@@ -274,6 +259,17 @@
       }
       return $('table').redrawTableStrip();
     });
+    $.fn.hasVisibleChildProject = function(favorite) {
+      var fav, projectId, projectLevel;
+
+      if (favorite == null) {
+        favorite = false;
+      }
+      fav = favorite ? ".fav" : "";
+      projectId = this.data('project-id');
+      projectLevel = this.data('project-level');
+      return $("tr:visible." + projectId + fav + "[data-project-level=" + (projectLevel + 1) + "]").exists();
+    };
     $.fn.redrawTableStrip = function() {
       var alt;
 
@@ -286,6 +282,7 @@
         return $(this).addClass(klass);
       });
     };
+    $('span.expander').on('clickRegular', expandRegular);
     $('#only-favorite-projects').trigger('click');
     return $('.project-custom-label-filter').trigger('change');
   });
