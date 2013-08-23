@@ -8,7 +8,7 @@
   <%= link_to(l(:label_overall_spent_time), time_entries_path) + ' |' if User.current.allowed_to?(:view_time_entries, nil, :global => true) %>
   <%= link_to(l(:label_overall_activity), {:controller => 'activities', :action => 'index', :id => nil}) + " |"%>
   <%= link_to(l(:filter_to_favorite_projects), {}, class: :all, :id => "only-favorite-projects") + " |" %>
-  <%= link_to(l(:collapse_expand_all_projects), {}, class: :collapsed, :id => "collapse-expand-all-projects") %>
+  <%= link_to(l(:collapse_expand_all_projects), {}, class: :expanded, :id => "collapse-expand-all-projects") %>
 </div>
 
 <h2><%= l(:label_project_plural) %></h2>
@@ -88,34 +88,25 @@
     <% end %>
 
     <% if (!project.children.empty? && showchildren) %>
-      <!--WHEN THERE ARE CHILD PROJECTS-->
       <% classes += " open parent " + cycle("odd", "even") %>
       <% rowid = "#{project_id_lsd}span" %>
       <% spanicon = content_tag(:span, "&nbsp; ".html_safe, {:class => "expander"}) %>
     <% else %>
-      <!--WHEN THERE ARE NO CHILD PROJECTS-->
       <% classes += " child" %>
       <% spanicon = content_tag(:span, "&nbsp; ".html_safe, :class => "expander dummy") %>
     <% end %>
 
-    <!--WHEN THIS CURRENT PROJET IS A TOP MOST PROJECT-->
     <% if (project.parent_id == nil) %>
-      <!--CLEAR ANCESTORS ARRAY-->
       <% ancestors.clear %>
-      <!--SET THIS PROJET TO BE TOP MOST PROJECT-->
       <% ancestors << project.id %>
     <% else %>
-      <!--ELSE WHEN THIS CURRENT PROJET IS PART OF ANOTHER PARENT PROJECT-->
-      <!--WHILE THERE ARE ANCESTORS AND THIS PROJET PARENT ID IS NOT IN THE LAST ANCESTOR ARRAY -->
       <% while (ancestors.any? && !(project.parent_id == ancestors.last)) %>
-        <!--REMOVE THIS ANCESTOR-->
         <% ancestors.pop %>
       <% end %>
 
-      <% classes += " hide" %>
-      <!--IF ANCESTORS DONT CONTAINS THIS PROJET PARENT ID-->
+      <% classes += " " %>
       <% if (!(ancestors.detect { |pid| pid == project.parent_id })) %>
-        <% prvclasses = "open show parent " + cycle("odd", "even") %>
+        <% prvclasses = "open parent " + cycle("odd", "even") %>
         <% ancestors.each do |pid| %>
           <% prvclasses += " " + "%04d" % pid %>
         <% end %>
@@ -139,16 +130,17 @@
       <% ancestors << project.id %>
     <% end %>
 
-    <!-- Begin of project TABLE ROW -->
     <% data_project_level = ancestors.size - 1 %>
-    <% data_project_id = project.id %>
+    <% data_project_id = "%04d" % project.id %>
     <%= content_tag :tr, :class => classes, :id => rowid,
         data: {project_level: data_project_level, project_id: data_project_id} do -%>
       <td><%= favorite_tag(project, User.current) %></td>
       <td class="name">
         <%= content_tag :span, '', :style => "padding-left: #{(2*((ancestors.length) > 0 ? ancestors.length-1 : 0)).to_s}em;" %>
         <%= spanicon %>
-        <%= project.active? ? link_to(h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => "project") : h(project.name) %>
+        <%= project.active? ? link_to(h(project.name),
+            {:controller => 'projects', :action => 'show', :id => project},
+            :class => "project") : h(project.name) %>
         <%= content_tag :span, '&nbsp;'.html_safe, :class => "empty" %>
       </td>
 
@@ -172,7 +164,6 @@
           class: "custom-field-created_on",
           style: favorite_project_extra_column.created_on ? '' : 'display: none;') %>
     <% end -%>
-    <!-- End of project TABLE ROW -->
   <% end %>
   </tbody>
 </table>
