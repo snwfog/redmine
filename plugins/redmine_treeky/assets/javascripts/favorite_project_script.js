@@ -213,11 +213,15 @@
       return $('table').redrawTableStrip();
     });
     $('#only-favorite-projects').on('click', function(e) {
-      var $anchor;
+      var $anchor, $collapse;
 
       e.preventDefault();
       $anchor = $(this);
       if ($anchor.hasClass('all')) {
+        $collapse = $('#collapse-expand-all-projects');
+        if ($collapse.hasClass('collapsed')) {
+          $collapse.trigger('click');
+        }
         $('span.expander').off('clickRegular');
         $('span.expander').on('clickFavorite', expandFavorite);
         $anchor.removeClass('all').addClass('fav');

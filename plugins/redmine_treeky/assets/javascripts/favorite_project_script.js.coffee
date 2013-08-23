@@ -187,6 +187,8 @@ $ ->
     $anchor = $(this)
     if ($anchor.hasClass('all'))
       # Toggle event listener
+      $collapse = $('#collapse-expand-all-projects')
+      $collapse.trigger('click') if $collapse.hasClass('collapsed')
       $('span.expander').off('clickRegular')
       $('span.expander').on('clickFavorite', expandFavorite)
       $anchor.removeClass('all').addClass('fav')
