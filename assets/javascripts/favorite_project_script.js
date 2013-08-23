@@ -71,7 +71,7 @@
       });
     };
     $('tbody tr form').on('ajax:success', function(evt, data, status, xhr) {
-      var $parentProjectTr, $submitType, $tr, attr, level;
+      var $parentProjectTr, $submitType, $tr;
 
       $tr = $(this).parents('tr');
       $submitType = $(this).find('input[name="_method"]');
@@ -81,7 +81,7 @@
           if ($tr.hasParentProject()) {
             $parentProjectTr = $tr.parentProjectTr();
           }
-          if (!$parentProjectTr.hasVisibleChildProject(true)) {
+          if (($parentProjectTr != null) && !$parentProjectTr.hasVisibleChildProject(true)) {
             $parentProjectTr.find('span.expander').off('clickFavorite').addClass('dummy');
           }
         }
@@ -90,10 +90,8 @@
         if ($submitType != null) {
           $submitType.attr('value', 'post');
         }
-        if ($(this).parents("tr").hasClass('parent')) {
-          attr = $(this).parents("tr").attr("class").match(/[\d]+/g);
-          level = attr != null ? attr.length : 0;
-          return $(this).parents("tr").tagChildren(level);
+        if ($tr.isParent()) {
+          return $(this).parents("tr").tagChildren($tr.getProjectLevel());
         }
       } else if ($tr.hasClass('unfav')) {
         $tr.removeClass('unfav').addClass('fav');
@@ -110,6 +108,9 @@
     });
     $.fn.getProjectLevel = function() {
       return this.data('project-level');
+    };
+    $.fn.getProjectId = function() {
+      return this.data('project-id');
     };
     $.fn.fav = function() {
       return this.removeClass('unfav').addClass('fav');
@@ -145,18 +146,12 @@
       closestParentId = parentIds.reverse()[0];
       return $("tr#" + closestParentId + "span");
     };
-    $.fn.getProjectId = function() {
-      return this.data('project-id');
-    };
     $.fn.tagChildren = function(level) {
       var els, projectId;
 
-      projectId = this.attr('id').match(/[\d]+/)[0];
+      projectId = this.getProjectId();
       els = $.grep($("tr.fav." + projectId), function(el) {
-        var klazz;
-
-        klazz = $(el).attr("class").match(/[\d]+/g);
-        return (klazz != null) && klazz.length === (level + 1);
+        return $(el).getProjectLevel() === level + 1;
       });
       return $.each(els, function(index, el) {
         if ($(this).isFav()) {

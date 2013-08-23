@@ -83,17 +83,15 @@ $ ->
         $tr.hide()
         # Check if this tr has showing siblings
         $parentProjectTr = $tr.parentProjectTr() if $tr.hasParentProject()
-        unless $parentProjectTr.hasVisibleChildProject(true) # True checks fav project only
+        # True checks fav project only
+        if $parentProjectTr? and not $parentProjectTr.hasVisibleChildProject(true)
           $parentProjectTr.find('span.expander').off('clickFavorite').addClass('dummy')
       # Removing favorite tr class
       $tr.removeClass('fav').addClass('unfav')
       $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav')
       $submitType.attr('value', 'post') if $submitType?
-      if $(this).parents("tr").hasClass('parent')
-        # Figure out this parent level
-        attr = $(this).parents("tr").attr("class").match(/[\d]+/g)
-        level = if attr? then attr.length else 0
-        $(this).parents("tr").tagChildren(level)
+      # Figure out this parent level
+      $(this).parents("tr").tagChildren($tr.getProjectLevel()) if $tr.isParent()
     else if $tr.hasClass 'unfav'
       # Adding favorite
       $tr.removeClass('unfav').addClass('fav')
@@ -110,6 +108,9 @@ $ ->
 
   $.fn.getProjectLevel = ->
     this.data('project-level')
+
+  $.fn.getProjectId = ->
+    this.data('project-id')
 
   $.fn.fav = ->
     this.removeClass('unfav').addClass('fav')
@@ -137,15 +138,10 @@ $ ->
     closestParentId = parentIds.reverse()[0]
     return $("tr##{closestParentId}span")
 
-  $.fn.getProjectId = ->
-    this.data('project-id')
-
-
   $.fn.tagChildren = (level) ->
-    projectId = this.attr('id').match(/[\d]+/)[0]
+    projectId = this.getProjectId()
     els = $.grep $("tr.fav.#{projectId}"), (el) ->
-      klazz = $(el).attr("class").match(/[\d]+/g)
-      return klazz? && klazz.length == (level + 1)
+      return $(el).getProjectLevel() == level + 1
     $.each els, (index, el) ->
       $(el).find('form').submit() if $(this).isFav()
 
