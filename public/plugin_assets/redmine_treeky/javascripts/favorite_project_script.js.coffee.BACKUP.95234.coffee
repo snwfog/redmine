@@ -1,0 +1,342 @@
+$ ->
+  # Handles expanding and collapsing project expander
+  # by issueing a custom events that the expander will
+  # be listening to depending on whether it is showing
+  # the full projects or only the favorite projects
+  $('span.expander').on 'click', (event) ->
+    if ($('#only-favorite-projects').hasClass('all'))
+      $(this).trigger('clickRegular')
+    else
+      $(this).trigger('clickFavorite')
+
+  # Click handler that will show all projects
+  expandRegular = (event) ->
+    if ($(this).parents('tr').hasClass('open'))
+      $(this).collapseExpander()
+    else
+      $(this).expandExpander()
+    $('table').redrawTableStrip()
+
+  # Click handler that will show only favorite projects
+  expandFavorite = (event) ->
+    if ($(this).parents('tr').hasClass('open'))
+      $(this).collapseExpander({favorite: true})
+    else
+      $(this).expandExpander({favorite: true})
+    $('table').redrawTableStrip()
+
+  $.fn.collapseExpander = (options) ->
+    defaults =
+      favorite: false
+      bubbling: false
+    settings = $.extend({}, defaults, options)
+
+    $tr = this.parents('tr')
+    $tr.removeClass('open').addClass('closed')
+<<<<<<< HEAD
+    if $tr.attr('id')
+      projectId = $tr.attr('id').match(/[\d]{4}/)[0]
+      # Select all children expander to collapse their projects
+      fav = if settings.favorite then ".fav" else ""
+      if settings.bubbling
+        selector = "tr.open.parent.#{projectId}"
+        $("#{selector}#{fav} span.expander").each ->
+          $(this).collapseExpander(options)
+      $("tr.child.#{projectId}#{fav}").hide()
+      $("tr.parent.#{projectId}#{fav}").hide()
+=======
+    if $tr.isParent()
+      projectId = $tr.getProjectId()
+      # Select all children expander to collapse their projects
+      fav = if settings.favorite then ".fav" else ""
+#      if settings.bubbling
+#        selector = "tr.open.parent.#{projectId}"
+#        $("#{selector}#{fav} span.expander").each ->
+#          $(this).collapseExpander(options)
+      unless settings.bubbling
+        $("tr:visible.#{projectId}#{fav}").hide()
+>>>>>>> f96bd8608bdca02bcae21a807411f6e50676ba2e
+
+  $.fn.expandExpander = (options) ->
+
+    defaults =
+      favorite: false
+      bubbling: false
+    settings = $.extend({}, defaults, options)
+
+    $tr = this.parents('tr')
+<<<<<<< HEAD
+    $tr.removeClass('closed').addClass('open')
+    if $tr.attr('id')
+      projectId = $tr.attr('id').match(/[\d]{4}/)
+      # Select all children expander to collapse their projects
+      fav = if settings.favorite then ".fav" else ""
+      parentLevel = $tr.level()
+      if settings.bubbling
+        $("tr.closed.parent.#{projectId}#{fav} span.expander").each ->
+          $(this).expandExpander(options)
+        $("tr.parent.#{projectId}#{fav}").show()
+      else
+        # Get only parent first sub level projects and show them
+        parentFirstSubLevelProject = $.grep($("tr.#{projectId}#{fav}"), (el, index) ->
+          $(el).level() == parentLevel + 1)
+        $.each(parentFirstSubLevelProject, (index, el) ->
+          $(el).show())
+
+  # Handles success/failure of fav/unfav projects
+  $('tbody tr form').on('ajax:success', (evt, data, status, xhr) ->
+    $parentTr = $(this).parents('tr')
+    $submitType = $(this).find('input[name="_method"]')
+    if $parentTr.hasClass 'fav'
+      # Remove this tr from the view if we are in favorite only view
+      if $('#only-favorite-projects').hasClass('fav')
+        $parentTr.hide()
+        # Check if this tr has showing siblings
+        $parentProjectTr = $parentTr.parentProjectTr()
+        if $parentProjectTr?
+          projectId = $parentProjectTr.projectId()
+          unless ($("tr.#{projectId}:visible").exists())
+            $parentProjectTr.find('span.expander').off('clickFavorite')
+      # Removing favorite tr class
+      $parentTr.removeClass('fav').addClass('unfav')
+      $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav')
+      $submitType.attr('value', 'post') if $submitType?
+      if $(this).parents("tr").hasClass('parent')
+        # Figure out this parent level
+        attr = $(this).parents("tr").attr("class").match(/[\d]{4}/g)
+        level = if attr? then attr.length else 0
+        $(this).parents("tr").tagChildren(level)
+    else if $parentTr.hasClass 'unfav'
+      # Adding favorite
+      $parentTr.removeClass('unfav').addClass('fav')
+=======
+    $tr.removeClass('closed').addClass('open') unless $tr.hasClass('open')
+    projectId = $tr.getProjectId()
+    parentLevel = $tr.getProjectLevel()
+    # Select all children expander to collapse their projects
+    fav = if settings.favorite then ".fav" else ""
+    $("tr:hidden.#{projectId}#{fav}[data-project-level=#{parentLevel+1}]").each ->
+      if $(this).isParent() && $(this).hasClass('open')
+        $(this).find('span.expander').expandExpander(options)
+      $(this).show()
+
+#    if settings.bubbling
+#      $("tr.closed.parent.#{projectId}#{fav} span.expander").each ->
+#        $(this).expandExpander(options)
+#      $("tr.parent.#{projectId}#{fav}").show()
+#    else
+#      # Get only parent first sub level projects and show them
+#      parentFirstSubLevelProject = $.grep($("tr.#{projectId}#{fav}"), (el, index) ->
+#        $(el).level() == parentLevel + 1)
+#      $.each(parentFirstSubLevelProject, (index, el) ->
+#        $(el).show())
+
+  # Handles success/failure of fav/unfav projects
+  $('tbody tr form').on('ajax:success', (evt, data, status, xhr) ->
+    $tr = $(this).parents('tr')
+    $submitType = $(this).find('input[name="_method"]')
+    if $tr.hasClass 'fav'
+      # Remove this tr from the view if we are in favorite only view
+      if $('#only-favorite-projects').hasClass('fav')
+        $tr.hide()
+        # Check if this tr has showing siblings
+        $parentProjectTr = $tr.parentProjectTr() if $tr.hasParentProject()
+        # True checks fav project only
+        if $parentProjectTr? and not $parentProjectTr.hasVisibleChildProject(true)
+          $parentProjectTr.find('span.expander').off('clickFavorite').addClass('dummy')
+      # Removing favorite tr class
+      $tr.removeClass('fav').addClass('unfav')
+      $(this).find('input[type="submit"]').removeClass('fav').addClass('unfav')
+      $submitType.attr('value', 'post') if $submitType?
+      # Figure out this parent level
+      $(this).parents("tr").tagChildren($tr.getProjectLevel()) if $tr.isParent()
+    else if $tr.hasClass 'unfav'
+      # Adding favorite
+      $tr.removeClass('unfav').addClass('fav')
+>>>>>>> f96bd8608bdca02bcae21a807411f6e50676ba2e
+      unless $submitType.exists()
+        $submitType = $('<input>').attr('name', '_method').attr('type', 'hidden')
+        $(this).find('div').prepend($submitType)
+      $submitType.attr('value', 'delete')
+      $(this).find('input[type="submit"]').removeClass('unfav').addClass('fav')
+      # Keep tagging parent even if this tr might already be favorited
+      $(this).tagParent()
+  ).bind('ajax:failure', (evt, data, status, xhr) ->
+    console.log "Something went horribly wrong. And it's all Charles' faults"
+  )
+
+<<<<<<< HEAD
+  $.fn.level = ->
+    attr = this.attr("class").match(/[\d]{4}/g)
+    level = if attr? then attr.length else 0
+=======
+  $.fn.getProjectLevel = ->
+    this.data('project-level')
+
+  $.fn.getProjectId = ->
+    this.data('project-id')
+>>>>>>> f96bd8608bdca02bcae21a807411f6e50676ba2e
+
+  $.fn.fav = ->
+    this.removeClass('unfav').addClass('fav')
+
+  $.fn.unfav = ->
+    this.removeClass('fav').addClass('unfav')
+
+  $.fn.isFav = ->
+    this.hasClass 'fav'
+
+  $.fn.isUnfav = ->
+    this.hasClass 'unfav'
+
+  $.fn.isParent = ->
+    return true if this.hasClass 'parent'
+    return true if this.parents('tr').hasClass 'parent'
+    return false
+
+<<<<<<< HEAD
+  $.fn.parentProjectTr = ->
+    parentIds = this.attr('class').match(/[\d]{4}/g)
+=======
+  $.fn.hasParentProject = ->
+    this.data('project-level') > 0
+
+  $.fn.parentProjectTr = ->
+    parentIds = this.attr('class').match(/[\d]+/g)
+>>>>>>> f96bd8608bdca02bcae21a807411f6e50676ba2e
+    return undefined unless parentIds?
+    closestParentId = parentIds.reverse()[0]
+    return $("tr##{closestParentId}span")
+
+<<<<<<< HEAD
+  $.fn.projectId = ->
+    return this.attr('id').match(/[\d]{4}/)[0]
+
+
+  $.fn.tagChildren = (level) ->
+    projectId = this.attr('id').match(/[\d]{4}/)[0]
+    els = $.grep $("tr.fav.#{projectId}"), (el) ->
+      klazz = $(el).attr("class").match(/[\d]{4}/g)
+      return klazz? && klazz.length == (level + 1)
+=======
+  $.fn.tagChildren = (level) ->
+    projectId = this.getProjectId()
+    els = $.grep $("tr.fav.#{projectId}"), (el) ->
+      return $(el).getProjectLevel() == level + 1
+>>>>>>> f96bd8608bdca02bcae21a807411f6e50676ba2e
+    $.each els, (index, el) ->
+      $(el).find('form').submit() if $(this).isFav()
+
+  $.fn.tagParent = ->
+    $el = this
+    klazz = $el.parents('tr').attr('class')
+<<<<<<< HEAD
+    parents = klazz.match /[\d]{4}/g
+=======
+    parents = klazz.match /[\d]+/g
+>>>>>>> f96bd8608bdca02bcae21a807411f6e50676ba2e
+    if parents
+      # Find next parent that is unfavorited
+      closestUnfavParents = $.grep parents.reverse(), (parentId, index) ->
+        $el = $("tr.unfav##{parentId}span")
+        return $el.exists()
+      # Take the first parent tr which is the closest
+      $("tr.unfav##{closestUnfavParents[0]}span").find('form').submit() if (closestUnfavParents.length > 0)
+
+  $.fn.exists = ->
+    this.length != 0;
+
+  $('.project-custom-label-filter').change (e) ->
+      $(this).find('input[type=checkbox]').each ->
+        classId = $(this).data('field')
+        $td = $("#projects-list .custom-field-" + classId)
+        if ($(this).is(':checked')) then $td.css("display", "") else $td.css("display", "none")
+      $(this).submit();
+
+  $('#collapse-expand-all-projects').on 'click', (e) ->
+    e.preventDefault()
+    $anchor = $(this)
+    if ($anchor.hasClass('expanded'))
+      $anchor.addClass('collapsed').removeClass('expanded')
+      $('tr.parent.open span.expander').each ->
+        $(this).collapseExpander()
+      $anchor.html("Expand all")
+    else if ($anchor.hasClass('collapsed'))
+      $anchor.addClass('expanded').removeClass('collapsed')
+      $('tr.parent.closed span.expander').each ->
+        $(this).expandExpander()
+      $anchor.html("Collapse all")
+    $('table').redrawTableStrip()
+
+  $('#only-favorite-projects').on 'click', (e) ->
+    e.preventDefault()
+    $anchor = $(this)
+    if ($anchor.hasClass('all'))
+      # Toggle event listener
+      $('span.expander').off('clickRegular')
+      $('span.expander').on('clickFavorite', expandFavorite)
+<<<<<<< HEAD
+
+=======
+>>>>>>> f96bd8608bdca02bcae21a807411f6e50676ba2e
+      $anchor.removeClass('all').addClass('fav')
+      $anchor.html("Show all projects")
+      $('#collapse-expand-all-projects').hide()
+      $('#projects-list tbody tr').each ->
+        if $(this).hasClass('fav') then $(this).show() else $(this).hide()
+        if $(this).hasClass 'parent'
+          $(this).addClass('open').removeClass('closed')
+          # Check if there are favorites child project
+<<<<<<< HEAD
+          projectId = $(this).attr('id').match(/[\d]{4}/)
+          unless $("tr.fav.#{projectId}").exists()
+            $(this).find('span.expander').off('clickFavorite')
+=======
+          unless $(this).hasVisibleChildProject(true)
+            $(this).find('span.expander').off('clickFavorite').addClass('dummy')
+>>>>>>> f96bd8608bdca02bcae21a807411f6e50676ba2e
+    else if ($anchor.hasClass('fav'))
+      # Toggle event listener
+      $('span.expander').off('clickFavorite')
+      $('span.expander').on('clickRegular', expandRegular)
+
+      $anchor.removeClass('fav').addClass('all')
+      $anchor.html("Only favorites")
+      $('#collapse-expand-all-projects').show()
+<<<<<<< HEAD
+      $('tbody tr').each ->
+        $(this).show()
+        $(this).addClass('open').removeClass('closed') if $(this).hasClass('parent')
+=======
+      $('#projects-list tbody tr').each ->
+        $(this).show()
+        if ($(this).isParent())
+          $(this).addClass('open').removeClass('closed')
+          $(this).find('span.expander').removeClass('dummy')
+>>>>>>> f96bd8608bdca02bcae21a807411f6e50676ba2e
+      $('#collapse-expand-all-projects').html("Collapse all")
+      $('#collapse-expand-all-projects').removeClass('collapsed').addClass('expanded')
+    $('table').redrawTableStrip()
+
+<<<<<<< HEAD
+=======
+  $.fn.hasVisibleChildProject = (favorite = false) ->
+    fav = if favorite then ".fav" else ""
+    projectId = this.data('project-id')
+    projectLevel = this.data('project-level')
+    $("tr:visible.#{projectId}#{fav}[data-project-level=#{projectLevel + 1}]").exists()
+
+>>>>>>> f96bd8608bdca02bcae21a807411f6e50676ba2e
+  $.fn.redrawTableStrip = ->
+    alt = 1;
+    this.find('tbody tr:visible').each ->
+      $(this).removeClass('even odd')
+      klass = if ((alt++)%2) == 0 then "even" else "odd"
+      $(this).addClass(klass)
+
+<<<<<<< HEAD
+=======
+  $('span.expander').on('clickRegular', expandRegular)
+>>>>>>> f96bd8608bdca02bcae21a807411f6e50676ba2e
+  $('#only-favorite-projects').trigger('click')
+  $('.project-custom-label-filter').trigger('change')

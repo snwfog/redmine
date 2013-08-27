@@ -1,0 +1,9 @@
+span.dnd-handle
+{
+  &.mouseover
+  {
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+  }
+
+}

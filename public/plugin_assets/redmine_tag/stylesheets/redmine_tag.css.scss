@@ -1,0 +1,93 @@
+$green: #00CC00;
+
+@mixin tag-color($color, $severity) {
+  ul.tags {
+    li {
+      background: $color;
+      &:before {
+        border-color: transparent $color transparent transparent;
+      }
+    }
+  }
+}
+
+@mixin tags($size) {
+  ul.tags {
+    margin: $size * 8px 0px 0px;
+    list-style: none;
+    display: inline-block;
+    padding-left: 0px;
+
+    li {
+      margin-bottom: $size * -4px;
+      margin-right: $size * 4px;
+      float: left;
+      height: $size * 16px;
+      line-height: $size * 16px;
+      position: relative;
+      font-size: $size * 11px;
+      margin-left: $size * 12px;
+      padding: 0px $size * 4px 0px $size * 6px;
+      color: #588FB8;
+      text-decoration: none;
+      border-bottom-right-radius: $size * 2px;
+      border-top-right-radius: $size * 2px;
+
+      &:before {
+        content: "";
+        float: left;
+        position: absolute;
+        top: 0px;
+        left: $size * -8px;
+        width: 0px;
+        height: 0px;
+        border-style: solid;
+        border-width: $size * 8px $size * 8px $size * 8px 0;
+      }
+
+      &:after {
+        content: "";
+        position: absolute;
+        top: $size * 6px;
+        left: 0;
+        float: left;
+        width: $size * 3px;
+        height: $size * 3px;
+        border-radius: $size * 1px;
+        background: #FFFEDC;
+      }
+    }
+  }
+}
+
+@include tag-color(#ADD5F1, 0);
+@include tags(1);
+
+div.tags {
+  margin: -8px 0px 5px;
+}
+
+td.tag_description {
+  text-align: left;
+  ul.tags {
+    margin-top: 0px;
+  }
+}
+
+#admin-menu a.tags {
+  background-image: url(../images/tag_blue_edit.png);
+}
+
+#tag-edit-cloud {
+  $enlarge-factor: 1.5;
+  @include tags($enlarge-factor);
+
+  li {
+    margin-bottom: $enlarge-factor * 10px;
+  }
+
+  a {
+    text-decoration: none;
+  }
+}
+
